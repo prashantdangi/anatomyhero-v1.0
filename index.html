@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnatomyHero - Interactive 3D Human Anatomy</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.min.js"></script>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-container">
+        <h1>Anatomy<span>HERO</span></h1>
+        <div class="loading-spinner"></div>
+        <div id="loading-bar-container">
+            <div id="loading-bar"></div>
+        </div>
+        <div id="loading-text">Loading anatomy models...</div>
+    </div>
+
+    <div class="container">
+        <!-- Title -->
+        <div id="title-container">
+            <h1>anatomy<span>HERO</span></h1>
+        </div>
+
+        <!-- Left Sidebar -->
+        <div id="sidebar">
+            <div class="system-item">
+                <input type="checkbox" id="skeletal" class="system-checkbox" data-model="skeletal.gltf">
+                <label for="skeletal">Skeletal System</label>
+            </div>
+            <div class="system-item">
+                <input type="checkbox" id="joints" class="system-checkbox" data-model="joints.gltf">
+                <label for="joints">Joints</label>
+            </div>
+            <div class="system-item">
+                <input type="checkbox" id="muscular" class="system-checkbox" data-model="muscular.gltf">
+                <label for="muscular">Muscular System</label>
+            </div>
+            <div class="system-item">
+                <input type="checkbox" id="fasciate" class="system-checkbox" data-model="fasciate.gltf">
+                <label for="fasciate">Fasciate</label>
+            </div>
+            <div class="system-item">
+                <input type="checkbox" id="arterial" class="system-checkbox" data-model="arterial.gltf">
+                <label for="arterial">Arterial System</label>
+            </div>
+            <div class="system-item">
+                <input type="checkbox" id="venous" class="system-checkbox" data-model="venous.gltf">
+                <label for="venous">Venous System</label>
+            </div>
+            <div class="system-item">
+                <input type="checkbox" id="lymphoid" class="system-checkbox" data-model="lymphoid.gltf">
+                <label for="lymphoid">Lymphoid System</label>
+            </div>
+            <div class="system-item">
+                <input type="checkbox" id="nervous" class="system-checkbox" data-model="nervous.gltf">
+                <label for="nervous">Nervous System</label>
+            </div>
+            <div class="system-item">
+                <input type="checkbox" id="visceral" class="system-checkbox" data-model="visceral.gltf">
+                <label for="visceral">Visceral System</label>
+            </div>
+            <div class="system-item">
+                <input type="checkbox" id="regions" class="system-checkbox" data-model="regions.gltf">
+                <label for="regions">Regions of Human Body</label>
+            </div>
+            <div class="system-item">
+                <input type="checkbox" id="movements" class="system-checkbox" data-model="movements.gltf">
+                <label for="movements">Movements</label>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div id="main-content">
+            <!-- Theme Toggle Button -->
+            <button id="theme-toggle" aria-label="Toggle dark mode">
+                <i class="fas fa-moon"></i>
+            </button>
+
+            <!-- 3D Canvas -->
+            <div id="canvas-container">
+                <canvas id="scene-canvas"></canvas>
+                <div class="info-panel" id="info-panel">
+                    <h3>Selected Element</h3>
+                    <p id="info-content">Click on a body part to see details.</p>
+                </div>
+            </div>
+
+            <!-- Control Buttons -->
+            <div id="controls">
+                <button class="control-btn" id="reset-view-btn">
+                    <i class="fas fa-sync-alt"></i> Reset View
+                </button>
+                <button class="control-btn" id="fullscreen-btn">
+                    <i class="fas fa-expand"></i> Full Screen
+                </button>
+                <button class="control-btn" id="screenshot-btn">
+                    <i class="fas fa-camera"></i> Screenshot
+                </button>
+            </div>
+
+            <!-- Search Panel -->
+            <div id="search-container">
+                <div class="search-wrapper">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="search-input" placeholder="Search anatomy parts...">
+                </div>
+                <div id="search-results">
+                    <!-- Search results will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
