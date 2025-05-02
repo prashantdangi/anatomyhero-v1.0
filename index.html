@@ -32,49 +32,48 @@
         <!-- Left Sidebar -->
         <div id="sidebar">
             <div class="system-item">
-                <input type="checkbox" id="skeletal" class="system-checkbox" data-model="skeletal.gltf">
+                <input type="checkbox" id="skeletal" class="system-checkbox" data-model="skeletal.glb" checked>
                 <label for="skeletal">Skeletal System</label>
             </div>
             <div class="system-item">
-                <input type="checkbox" id="joints" class="system-checkbox" data-model="joints.gltf">
+                <input type="checkbox" id="joints" class="system-checkbox" data-model="joints.glb">
                 <label for="joints">Joints</label>
             </div>
             <div class="system-item">
-                <input type="checkbox" id="muscular" class="system-checkbox" data-model="muscular.gltf">
+                <input type="checkbox" id="muscular" class="system-checkbox" data-model="muscular_system.glb">
                 <label for="muscular">Muscular System</label>
             </div>
             <div class="system-item">
-                <input type="checkbox" id="fasciate" class="system-checkbox" data-model="fasciate.gltf">
-                <label for="fasciate">Fasciate</label>
+                <input type="checkbox" id="muscular_insertion" class="system-checkbox" data-model="muscular_insertion.glb">
+                <label for="muscular_insertion">Muscular Insertion</label>
             </div>
             <div class="system-item">
-                <input type="checkbox" id="arterial" class="system-checkbox" data-model="arterial.gltf">
-                <label for="arterial">Arterial System</label>
+                <input type="checkbox" id="cardiovascular" class="system-checkbox" data-model="cardiovascular_system.glb">
+                <label for="cardiovascular">Cardiovascular System</label>
             </div>
             <div class="system-item">
-                <input type="checkbox" id="venous" class="system-checkbox" data-model="venous.gltf">
-                <label for="venous">Venous System</label>
+                <input type="checkbox" id="lymphoid" class="system-checkbox" data-model="lymphoid_organs.glb">
+                <label for="lymphoid">Lymphoid Organs</label>
             </div>
             <div class="system-item">
-                <input type="checkbox" id="lymphoid" class="system-checkbox" data-model="lymphoid.gltf">
-                <label for="lymphoid">Lymphoid System</label>
+                <input type="checkbox" id="nervous" class="system-checkbox" data-model="nervous_system_sense_organs.glb">
+                <label for="nervous">Nervous System & Sense Organs</label>
             </div>
             <div class="system-item">
-                <input type="checkbox" id="nervous" class="system-checkbox" data-model="nervous.gltf">
-                <label for="nervous">Nervous System</label>
+                <input type="checkbox" id="visceral" class="system-checkbox" data-model="visceral_systems.glb">
+                <label for="visceral">Visceral Systems</label>
             </div>
             <div class="system-item">
-                <input type="checkbox" id="visceral" class="system-checkbox" data-model="visceral.gltf">
-                <label for="visceral">Visceral System</label>
-            </div>
-            <div class="system-item">
-                <input type="checkbox" id="regions" class="system-checkbox" data-model="regions.gltf">
+                <input type="checkbox" id="regions" class="system-checkbox" data-model="regions_of_human_body.glb">
                 <label for="regions">Regions of Human Body</label>
             </div>
-            <div class="system-item">
-                <input type="checkbox" id="movements" class="system-checkbox" data-model="movements.gltf">
-                <label for="movements">Movements</label>
-            </div>
+        </div>
+
+        <!-- Part Description Panel -->
+        <div class="info-panel" id="info-panel">
+            <button class="close-btn" id="close-description">&times;</button>
+            <h3 id="part-title">Interactive Anatomy Guide</h3>
+            <p id="part-info">Click any area of the model to learn more about human anatomy. Detailed information will appear here.</p>
         </div>
 
         <!-- Main Content Area -->
@@ -87,10 +86,6 @@
             <!-- 3D Canvas -->
             <div id="canvas-container">
                 <canvas id="scene-canvas"></canvas>
-                <div class="info-panel" id="info-panel">
-                    <h3>Selected Element</h3>
-                    <p id="info-content">Click on a body part to see details.</p>
-                </div>
             </div>
 
             <!-- Control Buttons -->
@@ -114,6 +109,14 @@
                 </div>
                 <div id="search-results">
                     <!-- Search results will be inserted here -->
+                </div>
+            </div>
+
+            <!-- Suggestions Panel -->
+            <div id="suggestions-container">
+                <h3>Related Terms</h3>
+                <div id="suggestions-content">
+                    <p class="no-selection">Select a system to see related terms</p>
                 </div>
             </div>
         </div>

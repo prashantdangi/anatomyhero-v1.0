@@ -7,6 +7,294 @@ let raycaster = new THREE.Raycaster();
 let mouse = new THREE.Vector2();
 let totalModels = 0;
 let loadedModelsCount = 0;
+let selectedObject = null;
+let originalMaterials = new Map();
+let lastMouseMoveTime = 0;
+const mouseMoveThreshold = 100; // ms
+
+// DOM Elements
+const descriptionPanel = document.getElementById('info-panel');
+const closeDescriptionBtn = document.getElementById('close-description');
+const partTitle = document.getElementById('part-title');
+const partInfo = document.getElementById('part-info');
+
+// Sample descriptions for demonstration purposes
+const partDescriptions = {
+    // Major parts (shown on click)
+    "skeletal": {
+        title: "Skeletal System",
+        info: "The skeletal system provides structural support and protection for the body's organs. It consists of bones, cartilage, and ligaments."
+    },
+    "muscular": {
+        title: "Muscular System",
+        info: "The muscular system enables movement and maintains posture. It consists of skeletal, smooth, and cardiac muscles."
+    },
+    "cardiovascular": {
+        title: "Cardiovascular System",
+        info: "The cardiovascular system circulates blood throughout the body, delivering oxygen and nutrients to tissues."
+    },
+    "nervous": {
+        title: "Nervous System",
+        info: "The nervous system coordinates voluntary and involuntary actions and transmits signals between different parts of the body."
+    },
+    "visceral": {
+        title: "Visceral Systems",
+        info: "The visceral systems include the digestive, respiratory, and urinary systems that maintain the body's internal environment."
+    },
+    "lymphoid": {
+        title: "Lymphoid Organs",
+        info: "The lymphoid system helps protect the body from infection and disease by producing and storing white blood cells."
+    },
+    "joints": {
+        title: "Joints",
+        info: "Joints are the connections between bones that allow movement and provide mechanical support."
+    },
+    "regions": {
+        title: "Regions of Human Body",
+        info: "The human body is divided into major regions including the head, neck, thorax, abdomen, and limbs."
+    }
+};
+
+// Detailed parts (shown in search)
+const detailedPartDescriptions = {
+    // Skeletal System
+    "skull": {
+        title: "Skull",
+        info: "The skull is a bony structure that forms the head in vertebrates. It supports the structures of the face and provides a protective cavity for the brain."
+    },
+    "vertebrae": {
+        title: "Vertebrae",
+        info: "The vertebrae are the individual bones that make up the spinal column, providing support and protection for the spinal cord."
+    },
+    "ribs": {
+        title: "Ribs",
+        info: "The ribs are long curved bones that form the rib cage, protecting the thoracic organs such as the heart and lungs."
+    },
+    // Muscular System
+    "biceps": {
+        title: "Biceps",
+        info: "The biceps is a two-headed muscle located on the upper arm between the shoulder and the elbow."
+    },
+    "triceps": {
+        title: "Triceps",
+        info: "The triceps is a three-headed muscle located on the back of the upper arm, responsible for extending the elbow joint."
+    },
+    // Cardiovascular System
+    "heart": {
+        title: "Heart",
+        info: "The heart is a muscular organ that pumps blood through the blood vessels of the circulatory system."
+    },
+    "aorta": {
+        title: "Aorta",
+        info: "The aorta is the largest artery in the body, originating from the left ventricle of the heart and extending down to the abdomen."
+    },
+    // Add more detailed parts as needed
+};
+
+// Z-Anatomy and ZygoteBody detailed color scheme
+const zAnatomyColors = {
+    // Skeletal System
+    skeletal: {
+        // Bones
+        skull: 0xE6E6E6, // Light gray
+        mandible: 0xE6E6E6, // Light gray
+        vertebrae: 0xE6E6E6, // Light gray
+        ribs: 0xE6E6E6, // Light gray
+        sternum: 0xE6E6E6, // Light gray
+        clavicle: 0xE6E6E6, // Light gray
+        scapula: 0xE6E6E6, // Light gray
+        humerus: 0xE6E6E6, // Light gray
+        radius: 0xE6E6E6, // Light gray
+        ulna: 0xE6E6E6, // Light gray
+        pelvis: 0xE6E6E6, // Light gray
+        femur: 0xE6E6E6, // Light gray
+        tibia: 0xE6E6E6, // Light gray
+        fibula: 0xE6E6E6, // Light gray
+        // Cartilage
+        articular: 0xF5F5F5, // Off-white
+        costal: 0xF5F5F5, // Off-white
+        elastic: 0xF5F5F5, // Off-white
+        fibrocartilage: 0xF5F5F5, // Off-white
+        // Joints
+        synovial: 0xD3D3D3, // Light gray
+        fibrous: 0xD3D3D3, // Light gray
+        cartilaginous: 0xD3D3D3 // Light gray
+    },
+    // Muscular System
+    muscular: {
+        // Skeletal Muscles
+        head: 0xFF6B6B, // Light red
+        neck: 0xFF6B6B, // Light red
+        back: 0xFF6B6B, // Light red
+        chest: 0xFF6B6B, // Light red
+        abdomen: 0xFF6B6B, // Light red
+        arm: 0xFF6B6B, // Light red
+        forearm: 0xFF6B6B, // Light red
+        hand: 0xFF6B6B, // Light red
+        thigh: 0xFF6B6B, // Light red
+        leg: 0xFF6B6B, // Light red
+        foot: 0xFF6B6B, // Light red
+        // Tendons
+        tendon: 0xFF8C8C, // Lighter red
+        // Fascia
+        fascia: 0xFFA5A5, // Very light red
+        // Smooth Muscle
+        smooth: 0xFFB6C1, // Light pink
+        // Cardiac Muscle
+        cardiac: 0xFF0000 // Red
+    },
+    // Cardiovascular System
+    cardiovascular: {
+        // Arteries
+        aorta: 0xFF0000, // Red
+        pulmonary: 0xFF0000, // Red
+        coronary: 0xFF0000, // Red
+        carotid: 0xFF0000, // Red
+        subclavian: 0xFF0000, // Red
+        brachial: 0xFF0000, // Red
+        radial: 0xFF0000, // Red
+        iliac: 0xFF0000, // Red
+        femoral: 0xFF0000, // Red
+        // Veins
+        venaCava: 0x0000FF, // Blue
+        pulmonary: 0x0000FF, // Blue
+        jugular: 0x0000FF, // Blue
+        subclavian: 0x0000FF, // Blue
+        portal: 0x0000FF, // Blue
+        hepatic: 0x0000FF, // Blue
+        renal: 0x0000FF, // Blue
+        iliac: 0x0000FF, // Blue
+        femoral: 0x0000FF, // Blue
+        // Capillaries
+        capillary: 0x800080 // Purple
+    },
+    // Nervous System
+    nervous: {
+        // Central Nervous System
+        brain: 0xFFD700, // Gold
+        cerebrum: 0xFFD700, // Gold
+        cerebellum: 0xFFD700, // Gold
+        brainstem: 0xFFD700, // Gold
+        spinalCord: 0xFFA500, // Orange
+        // Peripheral Nervous System
+        cranialNerves: 0xFFB6C1, // Light pink
+        spinalNerves: 0xFFB6C1, // Light pink
+        autonomic: 0xFFB6C1, // Light pink
+        // Special Senses
+        eye: 0xFFFFFF, // White
+        ear: 0xFFFFFF, // White
+        nose: 0xFFFFFF, // White
+        tongue: 0xFFFFFF // White
+    },
+    // Visceral Systems
+    visceral: {
+        // Respiratory
+        lung: 0x87CEEB, // Sky blue
+        trachea: 0x87CEEB, // Sky blue
+        bronchi: 0x87CEEB, // Sky blue
+        // Digestive
+        esophagus: 0xFFA07A, // Light salmon
+        stomach: 0xFFA07A, // Light salmon
+        smallIntestine: 0xFFE4B5, // Moccasin
+        largeIntestine: 0xFFE4B5, // Moccasin
+        liver: 0x90EE90, // Light green
+        pancreas: 0x90EE90, // Light green
+        gallbladder: 0x90EE90, // Light green
+        // Urinary
+        kidney: 0xE6E6FA, // Lavender
+        ureter: 0xE6E6FA, // Lavender
+        bladder: 0xE6E6FA, // Lavender
+        // Reproductive
+        uterus: 0xFFB6C1, // Light pink
+        ovary: 0xFFB6C1, // Light pink
+        testis: 0xFFB6C1, // Light pink
+        prostate: 0xFFB6C1 // Light pink
+    },
+    // Lymphoid System
+    lymphoid: {
+        // Primary Lymphoid Organs
+        thymus: 0x98FB98, // Pale green
+        boneMarrow: 0x98FB98, // Pale green
+        // Secondary Lymphoid Organs
+        lymphNode: 0x98FB98, // Pale green
+        spleen: 0x90EE90, // Light green
+        tonsil: 0x98FB98, // Pale green
+        // Lymphatic Vessels
+        lymphatic: 0x98FB98 // Pale green
+    },
+    // Joints
+    joints: {
+        // Synovial Joints
+        ballAndSocket: 0xFFE4C4, // Bisque
+        hinge: 0xFFE4C4, // Bisque
+        pivot: 0xFFE4C4, // Bisque
+        condyloid: 0xFFE4C4, // Bisque
+        saddle: 0xFFE4C4, // Bisque
+        gliding: 0xFFE4C4, // Bisque
+        // Cartilaginous Joints
+        symphysis: 0xF5DEB3, // Wheat
+        synchondrosis: 0xF5DEB3, // Wheat
+        // Fibrous Joints
+        suture: 0xDEB887, // Burlywood
+        syndesmosis: 0xDEB887, // Burlywood
+        gomphosis: 0xDEB887 // Burlywood
+    },
+    // Regions
+    regions: {
+        // Head and Neck
+        head: 0xFFE4E1, // Misty rose
+        neck: 0xFFE4E1, // Misty rose
+        // Thorax
+        thorax: 0xFFE4E1, // Misty rose
+        // Abdomen
+        abdomen: 0xFFE4E1, // Misty rose
+        // Pelvis
+        pelvis: 0xFFE4E1, // Misty rose
+        // Limbs
+        upperLimb: 0xFFE4E1, // Misty rose
+        lowerLimb: 0xFFE4E1 // Misty rose
+    }
+};
+
+// Add related terms data
+const relatedTerms = {
+    skeletal: [
+        "Skull", "Vertebrae", "Ribs", "Pelvis", "Femur", "Tibia", "Fibula",
+        "Humerus", "Radius", "Ulna", "Carpals", "Metacarpals", "Phalanges"
+    ],
+    joints: [
+        "Ball and Socket Joint", "Hinge Joint", "Pivot Joint", "Saddle Joint",
+        "Plane Joint", "Condyloid Joint", "Synovial Joint", "Cartilaginous Joint"
+    ],
+    muscular: [
+        "Biceps", "Triceps", "Deltoid", "Pectoralis Major", "Latissimus Dorsi",
+        "Quadriceps", "Hamstrings", "Gastrocnemius", "Trapezius"
+    ],
+    muscular_insertion: [
+        "Tendon", "Ligament", "Muscle Origin", "Muscle Insertion",
+        "Myotendinous Junction", "Aponeurosis"
+    ],
+    cardiovascular: [
+        "Heart", "Aorta", "Pulmonary Artery", "Vena Cava", "Coronary Arteries",
+        "Carotid Artery", "Jugular Vein", "Capillaries"
+    ],
+    lymphoid: [
+        "Lymph Nodes", "Thymus", "Spleen", "Tonsils", "Bone Marrow",
+        "Lymphatic Vessels", "Peyer's Patches"
+    ],
+    nervous: [
+        "Brain", "Spinal Cord", "Cranial Nerves", "Peripheral Nerves",
+        "Neurons", "Synapses", "Ganglia", "Meninges"
+    ],
+    visceral: [
+        "Heart", "Lungs", "Liver", "Stomach", "Intestines", "Kidneys",
+        "Pancreas", "Gallbladder", "Bladder"
+    ],
+    regions: [
+        "Head", "Neck", "Thorax", "Abdomen", "Pelvis", "Upper Limb",
+        "Lower Limb", "Back", "Chest"
+    ]
+};
 
 // Initialize loading bar
 function initializeLoading() {
@@ -43,6 +331,7 @@ function initScene() {
         1000
     );
     camera.position.z = 5;
+    camera.position.x = -2; // Shift camera left
     
     // Renderer setup
     renderer = new THREE.WebGLRenderer({ 
@@ -105,12 +394,30 @@ function onCanvasClick(event) {
     mouse.y = -((event.clientY - rect.top) / canvas.height) * 2 + 1;
     
     raycaster.setFromCamera(mouse, camera);
-    
     const intersects = raycaster.intersectObjects(scene.children, true);
     
     if (intersects.length > 0) {
-        const object = getTopLevelObject(intersects[0].object);
-        showInfoPanel(object);
+        const selectedPart = intersects[0].object;
+        
+        // Reset previous selection
+        resetSelection();
+        
+        // Set new selection
+        selectedObject = selectedPart;
+        
+        // Store original material
+        if (!originalMaterials.has(selectedPart.id)) {
+            originalMaterials.set(selectedPart.id, selectedPart.material.clone());
+        }
+        
+        // Highlight the selected part
+        highlightObject(selectedPart);
+        
+        // Show description
+        showPartDescription(selectedPart);
+    } else {
+        // Reset selection if clicking on empty space
+        resetSelection();
     }
 }
 
@@ -132,6 +439,11 @@ function showInfoPanel(object) {
             <strong>${object.name}</strong><br>
             ${getObjectDescription(object.name)}
         `;
+        
+        // Hide the panel after 5 seconds
+        setTimeout(() => {
+            infoPanel.style.display = 'none';
+        }, 5000);
     }
 }
 
@@ -168,14 +480,18 @@ function loadModel(modelPath, systemName) {
                 // Hide model initially
                 gltf.scene.visible = false;
                 
+                // Apply Z-Anatomy colors to the model
+                applyZAnatomyColors(gltf.scene, systemName);
+                
                 // Center and scale the model
                 const box = new THREE.Box3().setFromObject(gltf.scene);
                 const center = box.getCenter(new THREE.Vector3());
                 const size = box.getSize(new THREE.Vector3());
                 const maxDim = Math.max(size.x, size.y, size.z);
-                const scale = 2 / maxDim;
+                const scale = 6.5 / maxDim; // Increased scale factor from 2 to 3.5
                 
                 gltf.scene.position.sub(center.multiplyScalar(scale));
+                gltf.scene.position.y = -3.08; // Lower the model slightly
                 gltf.scene.scale.multiplyScalar(scale);
                 
                 // Add to scene and store reference
@@ -191,7 +507,6 @@ function loadModel(modelPath, systemName) {
                 resolve(gltf);
             },
             (xhr) => {
-                // Progress callback
                 const percent = (xhr.loaded / xhr.total * 100).toFixed(0);
                 document.getElementById('loading-text').textContent = `Loading ${systemName}... ${percent}%`;
             },
@@ -226,14 +541,12 @@ function extractModelData(gltf, systemName) {
         'skeletal': ['Skull', 'Vertebrae', 'Ribs', 'Pelvis', 'Femur', 'Tibia', 'Humerus'],
         'joints': ['Knee Joint', 'Hip Joint', 'Shoulder Joint', 'Elbow Joint', 'Ankle Joint'],
         'muscular': ['Biceps', 'Triceps', 'Quadriceps', 'Hamstrings', 'Pectoralis'],
-        'fasciate': ['Thoracolumbar Fascia', 'Plantar Fascia', 'Cervical Fascia'],
-        'arterial': ['Aorta', 'Carotid Artery', 'Femoral Artery', 'Brachial Artery'],
-        'venous': ['Jugular Vein', 'Femoral Vein', 'Superior Vena Cava', 'Portal Vein'],
+        'muscular_insertion': ['Biceps Insertion', 'Triceps Insertion', 'Quadriceps Insertion'],
+        'cardiovascular': ['Heart', 'Aorta', 'Pulmonary Artery', 'Coronary Arteries'],
         'lymphoid': ['Lymph Nodes', 'Thymus', 'Spleen', 'Tonsils', 'Lymphatic Vessels'],
         'nervous': ['Brain', 'Spinal Cord', 'Cranial Nerves', 'Sciatic Nerve', 'Brachial Plexus'],
         'visceral': ['Heart', 'Lungs', 'Liver', 'Stomach', 'Intestines', 'Kidneys'],
-        'regions': ['Head', 'Neck', 'Thorax', 'Abdomen', 'Upper Limb', 'Lower Limb'],
-        'movements': ['Flexion', 'Extension', 'Abduction', 'Adduction', 'Rotation']
+        'regions': ['Head', 'Neck', 'Thorax', 'Abdomen', 'Upper Limb', 'Lower Limb']
     };
     
     // Add the sample data to our anatomyData object
@@ -345,6 +658,95 @@ function toggleTheme() {
     }
 }
 
+// Function to fetch Wikipedia description
+async function fetchWikipediaDescription(partName) {
+    try {
+        const searchUrl = `https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exintro=1&explaintext=1&titles=${encodeURIComponent(partName)}&origin=*`;
+        const response = await fetch(searchUrl);
+        const data = await response.json();
+        const pages = data.query.pages;
+        const pageId = Object.keys(pages)[0];
+        
+        if (pageId === '-1') {
+            // If no exact match, try searching
+            const searchApiUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(partName + " anatomy")}&format=json&origin=*`;
+            const searchResponse = await fetch(searchApiUrl);
+            const searchData = await searchResponse.json();
+            
+            if (searchData.query.search.length > 0) {
+                const firstResult = searchData.query.search[0];
+                const newSearchUrl = `https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exintro=1&explaintext=1&titles=${encodeURIComponent(firstResult.title)}&origin=*`;
+                const newResponse = await fetch(newSearchUrl);
+                const newData = await newResponse.json();
+                const newPages = newData.query.pages;
+                const newPageId = Object.keys(newPages)[0];
+                return newPages[newPageId].extract || "No detailed description available.";
+            }
+            return "No detailed description available.";
+        }
+        
+        return pages[pageId].extract || "No detailed description available.";
+    } catch (error) {
+        console.error('Error fetching Wikipedia description:', error);
+        return "Error fetching description. Please try again later.";
+    }
+}
+
+// Get part description
+async function getPartDescription(partName, isSearch = false) {
+    const lowerCaseName = partName.toLowerCase();
+    
+    // For search results, use detailed descriptions
+    if (isSearch) {
+        if (detailedPartDescriptions[lowerCaseName]) {
+            return detailedPartDescriptions[lowerCaseName];
+        }
+        
+        for (const key in detailedPartDescriptions) {
+            if (lowerCaseName.includes(key)) {
+                return detailedPartDescriptions[key];
+            }
+        }
+    }
+    
+    // For click interactions, use major part descriptions or fetch from Wikipedia
+    if (partDescriptions[lowerCaseName]) {
+        const desc = partDescriptions[lowerCaseName];
+        const wikiDesc = await fetchWikipediaDescription(desc.title);
+        return {
+            title: desc.title,
+            info: wikiDesc
+        };
+    }
+    
+    // If no predefined description, fetch from Wikipedia
+    const wikiDesc = await fetchWikipediaDescription(partName);
+    return {
+        title: partName,
+        info: wikiDesc
+    };
+}
+
+// Show part description
+async function showPartDescription(part, isSearch = false) {
+    let partName = part.name || "Unknown Part";
+    if (partName === "" || partName === "Unknown Part") {
+        if (part.parent && part.parent.name) {
+            partName = part.parent.name;
+        }
+    }
+    
+    // Show loading state
+    partTitle.textContent = partName;
+    partInfo.textContent = "Loading description...";
+    descriptionPanel.classList.add('active');
+    
+    // Fetch and show description
+    const description = await getPartDescription(partName, isSearch);
+    partTitle.textContent = description.title;
+    partInfo.textContent = description.info;
+}
+
 // Search function
 function performSearch(query) {
     const searchResults = document.getElementById('search-results');
@@ -355,17 +757,14 @@ function performSearch(query) {
     query = query.toLowerCase();
     let results = [];
     
-    // Search through all anatomy data
-    Object.keys(anatomyData).forEach(system => {
-        anatomyData[system].parts.forEach(part => {
-            if (part.name.toLowerCase().includes(query) || 
-                part.description.toLowerCase().includes(query)) {
-                results.push({
-                    system,
-                    part
-                });
-            }
-        });
+    // Search through detailed parts
+    Object.keys(detailedPartDescriptions).forEach(part => {
+        if (part.toLowerCase().includes(query)) {
+            results.push({
+                name: part,
+                description: detailedPartDescriptions[part]
+            });
+        }
     });
     
     // Display results
@@ -373,26 +772,16 @@ function performSearch(query) {
         results.forEach(result => {
             const resultItem = document.createElement('div');
             resultItem.className = 'search-result-item';
-            resultItem.textContent = `${result.part.name} (${result.system})`;
+            resultItem.textContent = result.name;
             
             resultItem.addEventListener('click', () => {
-                // Show the system
-                const checkbox = document.getElementById(result.system);
-                checkbox.checked = true;
-                toggleSystem(result.system, true);
+                // Show the description
+                partTitle.textContent = result.description.title;
+                partInfo.textContent = result.description.info;
+                descriptionPanel.classList.add('active');
                 
-                // Show info panel
-                const infoPanel = document.getElementById('info-panel');
-                const infoContent = document.getElementById('info-content');
-                
-                infoPanel.style.display = 'block';
-                infoContent.innerHTML = `
-                    <strong>${result.part.name}</strong><br>
-                    ${result.part.description}
-                `;
-                
-                // In a real implementation, you would also highlight 
-                // or focus the camera on the specific part
+                // Highlight the part if it exists in the scene
+                highlightPartByName(result.name);
             });
             
             searchResults.appendChild(resultItem);
@@ -404,6 +793,184 @@ function performSearch(query) {
     }
 }
 
+// Highlight part by name
+function highlightPartByName(partName) {
+    // Reset previous selection
+    resetSelection();
+    
+    // Find the part in the scene
+    scene.traverse((object) => {
+        if (object instanceof THREE.Mesh) {
+            const objectName = object.name.toLowerCase();
+            if (objectName.includes(partName.toLowerCase())) {
+                selectedObject = object;
+                
+                // Store original material
+                if (!originalMaterials.has(object.id)) {
+                    originalMaterials.set(object.id, object.material.clone());
+                }
+                
+                // Highlight the part
+                highlightObject(object);
+                return;
+            }
+        }
+    });
+}
+
+// Mouse move handler for highlighting
+function onMouseMove(event) {
+    const now = Date.now();
+    if (now - lastMouseMoveTime < mouseMoveThreshold) return;
+    lastMouseMoveTime = now;
+    
+    const canvas = document.getElementById('scene-canvas');
+    const rect = canvas.getBoundingClientRect();
+    
+    mouse.x = ((event.clientX - rect.left) / canvas.width) * 2 - 1;
+    mouse.y = -((event.clientY - rect.top) / canvas.height) * 2 + 1;
+    
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(scene.children, true);
+    
+    // Reset all objects to original materials except selected
+    scene.traverse((object) => {
+        if (object instanceof THREE.Mesh && object !== selectedObject) {
+            if (originalMaterials.has(object.id)) {
+                const origMaterial = originalMaterials.get(object.id);
+                object.material = origMaterial.clone();
+            }
+        }
+    });
+    
+    // Highlight hovered object if not selected
+    if (intersects.length > 0) {
+        const hoveredPart = intersects[0].object;
+        if (hoveredPart !== selectedObject && hoveredPart instanceof THREE.Mesh) {
+            if (!originalMaterials.has(hoveredPart.id)) {
+                originalMaterials.set(hoveredPart.id, hoveredPart.material.clone());
+            }
+            
+            const hoverMaterial = originalMaterials.get(hoveredPart.id).clone();
+            if (hoverMaterial.emissive !== undefined) {
+                hoverMaterial.emissive = new THREE.Color(0x333333);
+            }
+            hoveredPart.material = hoverMaterial;
+            
+            canvas.style.cursor = 'pointer';
+        } else {
+            canvas.style.cursor = 'default';
+        }
+    } else {
+        canvas.style.cursor = 'default';
+    }
+}
+
+// Highlight selected object
+function highlightObject(object) {
+    if (object instanceof THREE.Mesh) {
+        const highlightMaterial = originalMaterials.get(object.id).clone();
+        highlightMaterial.emissive = new THREE.Color(0x999900);
+        highlightMaterial.emissiveIntensity = 0.5;
+        highlightMaterial.opacity = 1.0; // Make highlighted part fully opaque
+        object.material = highlightMaterial;
+    }
+}
+
+// Reset selection
+function resetSelection() {
+    if (selectedObject) {
+        if (originalMaterials.has(selectedObject.id)) {
+            const originalMaterial = originalMaterials.get(selectedObject.id);
+            selectedObject.material = originalMaterial.clone();
+            selectedObject.material.opacity = 0.8; // Reset opacity
+        }
+        selectedObject = null;
+    }
+    
+    descriptionPanel.classList.remove('active');
+}
+
+// Get Z-Anatomy color for a specific part
+function getZAnatomyColor(partName, systemName) {
+    const lowerPartName = partName.toLowerCase();
+    const systemColors = zAnatomyColors[systemName];
+    
+    if (systemColors) {
+        // First try exact matches
+        for (const partType in systemColors) {
+            if (lowerPartName === partType.toLowerCase()) {
+                return systemColors[partType];
+            }
+        }
+        
+        // Then try partial matches
+        for (const partType in systemColors) {
+            if (lowerPartName.includes(partType.toLowerCase())) {
+                return systemColors[partType];
+            }
+        }
+        
+        // Default to first color in the system's color palette
+        return systemColors[Object.keys(systemColors)[0]];
+    }
+    
+    // Default color if no matching system or part is found
+    return 0xFFFFFF;
+}
+
+// Apply Z-Anatomy colors to the model
+function applyZAnatomyColors(object, systemName) {
+    object.traverse((child) => {
+        if (child instanceof THREE.Mesh) {
+            // Get the appropriate color based on the system and part name
+            const color = getZAnatomyColor(child.name, systemName);
+            
+            // Create a new material with the Z-Anatomy color
+            const material = new THREE.MeshPhongMaterial({
+                color: color,
+                shininess: 30,
+                specular: 0x111111,
+                transparent: true,
+                opacity: 0.8,
+                side: THREE.DoubleSide // Render both sides of the mesh
+            });
+            
+            // Apply the material
+            child.material = material;
+            
+            // Store original material for highlighting
+            originalMaterials.set(child.id, material.clone());
+        }
+    });
+}
+
+// Function to update suggestions based on selected system
+function updateSuggestions(systemId) {
+    const suggestionsContent = document.getElementById('suggestions-content');
+    const terms = relatedTerms[systemId];
+    
+    if (!terms) {
+        suggestionsContent.innerHTML = '<p class="no-selection">Select a system to see related terms</p>';
+        return;
+    }
+    
+    let html = '<ul class="terms-list">';
+    terms.forEach(term => {
+        html += `<li>${term}</li>`;
+    });
+    html += '</ul>';
+    
+    suggestionsContent.innerHTML = html;
+}
+
+// Function to search for a term when clicked
+function searchForTerm(term) {
+    const searchInput = document.getElementById('search-input');
+    searchInput.value = term;
+    performSearch(term);
+}
+
 // Initialize the application
 document.addEventListener('DOMContentLoaded', () => {
     // Show loading screen
@@ -411,6 +978,15 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Initialize 3D scene
     initScene();
+    
+    // Show info panel by default
+    document.getElementById('info-panel').classList.add('active');
+    
+    // Add event listeners for part selection
+    const canvas = document.getElementById('scene-canvas');
+    canvas.addEventListener('click', onCanvasClick);
+    canvas.addEventListener('mousemove', onMouseMove);
+    closeDescriptionBtn.addEventListener('click', resetSelection);
     
     // Load models
     const systemCheckboxes = document.querySelectorAll('.system-checkbox');
@@ -420,12 +996,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const systemName = checkbox.id;
         const modelPath = checkbox.getAttribute('data-model');
         
-        // Add to load queue
         modelLoadPromises.push(loadModel(modelPath, systemName));
         
-        // Add event listener
         checkbox.addEventListener('change', (e) => {
             toggleSystem(systemName, e.target.checked);
+            if (e.target.checked) {
+                // Uncheck other checkboxes
+                systemCheckboxes.forEach(cb => {
+                    if (cb !== checkbox) {
+                        cb.checked = false;
+                        toggleSystem(cb.id, false);
+                    }
+                });
+                updateSuggestions(systemName);
+            } else {
+                suggestionsContent.innerHTML = '<p class="no-selection">Select a system to see related terms</p>';
+            }
         });
     });
     
@@ -433,11 +1019,14 @@ document.addEventListener('DOMContentLoaded', () => {
     Promise.all(modelLoadPromises)
         .then(() => {
             console.log('All models loaded successfully');
-            // Fade out loading screen
             const loadingContainer = document.getElementById('loading-container');
             loadingContainer.style.opacity = '0';
             setTimeout(() => {
                 loadingContainer.style.display = 'none';
+                // Show skeletal system by default
+                if (loadedModels['skeletal']) {
+                    loadedModels['skeletal'].visible = true;
+                }
             }, 500);
         })
         .catch(error => {
@@ -456,4 +1045,7 @@ document.addEventListener('DOMContentLoaded', () => {
     searchInput.addEventListener('input', (e) => {
         performSearch(e.target.value);
     });
+    
+    // Show skeletal system suggestions by default since it's checked
+    updateSuggestions('skeletal');
 }); 
