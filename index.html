@@ -11,6 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.min.js"></script>
+    <script src="search.js"></script>
 </head>
 <body>
     <!-- Loading Screen -->
@@ -29,12 +30,26 @@
             <h1>anatomy<span>HERO</span></h1>
         </div>
 
+        <!-- Part Description Panel -->
+        <div class="info-panel" id="info-panel">
+            <div class="info-panel-header">
+                <h3 id="part-title">Interactive Anatomy Guide</h3>
+                <button class="expand-btn" id="expand-description">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+            <div class="info-panel-content" id="info-panel-content">
+                <p id="part-info">Click any area of the model to learn more about human anatomy. Detailed information will appear here.</p>
+            </div>
+        </div>
+
         <!-- Left Sidebar -->
         <div id="sidebar">
             <div class="system-item">
                 <input type="checkbox" id="skeletal" class="system-checkbox" data-model="skeletal.glb" checked>
                 <label for="skeletal">Skeletal System</label>
             </div>
+            <!-- Commented out other systems for initial deployment
             <div class="system-item">
                 <input type="checkbox" id="joints" class="system-checkbox" data-model="joints.glb">
                 <label for="joints">Joints</label>
@@ -67,19 +82,30 @@
                 <input type="checkbox" id="regions" class="system-checkbox" data-model="regions_of_human_body.glb">
                 <label for="regions">Regions of Human Body</label>
             </div>
+            -->
         </div>
 
-        <!-- Part Description Panel -->
-        <div class="info-panel" id="info-panel">
-            <button class="close-btn" id="close-description">&times;</button>
-            <h3 id="part-title">Interactive Anatomy Guide</h3>
-            <p id="part-info">Click any area of the model to learn more about human anatomy. Detailed information will appear here.</p>
+        <!-- View Options Box -->
+        <div id="view-options">
+            <div class="view-option">
+                <i class="fas fa-pen"></i>
+                <span>Annotate</span>
+            </div>
+            <div class="view-option">
+                <i class="fas fa-adjust"></i>
+                <span>Fade</span>
+            </div>
+            <div class="view-option">
+                <i class="fas fa-eye-slash"></i>
+                <span>Isolate</span>
+            </div>
         </div>
 
         <!-- Main Content Area -->
         <div id="main-content">
             <!-- Theme Toggle Button -->
             <button id="theme-toggle" aria-label="Toggle dark mode">
+                <i class="fas fa-sun"></i>
                 <i class="fas fa-moon"></i>
             </button>
 
@@ -92,6 +118,9 @@
             <div id="controls">
                 <button class="control-btn" id="reset-view-btn">
                     <i class="fas fa-sync-alt"></i> Reset View
+                </button>
+                <button class="control-btn" id="hide-interface-btn">
+                    <i class="fas fa-eye-slash"></i> Hide Interface
                 </button>
                 <button class="control-btn" id="fullscreen-btn">
                     <i class="fas fa-expand"></i> Full Screen
@@ -111,16 +140,22 @@
                     <!-- Search results will be inserted here -->
                 </div>
             </div>
-
-            <!-- Suggestions Panel -->
-            <div id="suggestions-container">
-                <h3>Related Terms</h3>
-                <div id="suggestions-content">
-                    <p class="no-selection">Select a system to see related terms</p>
-                </div>
-            </div>
         </div>
     </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="copyright">
+                © 2025 AnatomyHero Technologies Inc. All rights reserved
+            </div>
+            <div class="footer-links">
+                <a href="#" class="footer-link">Privacy Policy</a>
+                <a href="#" class="footer-link">Terms and Conditions</a>
+                <a href="#" class="footer-link">Credits</a>
+                <a href="#" class="footer-link">Contact</a>
+            </div>
+        </div>
+    </footer>
 
     <script src="script.js"></script>
 </body>

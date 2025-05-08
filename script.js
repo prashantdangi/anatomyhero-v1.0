@@ -24,7 +24,9 @@ const partDescriptions = {
     "skeletal": {
         title: "Skeletal System",
         info: "The skeletal system provides structural support and protection for the body's organs. It consists of bones, cartilage, and ligaments."
-    },
+    }
+    // Commented out other systems for initial deployment
+    /*
     "muscular": {
         title: "Muscular System",
         info: "The muscular system enables movement and maintains posture. It consists of skeletal, smooth, and cardiac muscles."
@@ -53,6 +55,7 @@ const partDescriptions = {
         title: "Regions of Human Body",
         info: "The human body is divided into major regions including the head, neck, thorax, abdomen, and limbs."
     }
+    */
 };
 
 // Detailed parts (shown in search)
@@ -69,7 +72,9 @@ const detailedPartDescriptions = {
     "ribs": {
         title: "Ribs",
         info: "The ribs are long curved bones that form the rib cage, protecting the thoracic organs such as the heart and lungs."
-    },
+    }
+    // Commented out other systems for initial deployment
+    /*
     // Muscular System
     "biceps": {
         title: "Biceps",
@@ -87,8 +92,8 @@ const detailedPartDescriptions = {
     "aorta": {
         title: "Aorta",
         info: "The aorta is the largest artery in the body, originating from the left ventricle of the heart and extending down to the abdomen."
-    },
-    // Add more detailed parts as needed
+    }
+    */
 };
 
 // Z-Anatomy and ZygoteBody detailed color scheme
@@ -119,7 +124,9 @@ const zAnatomyColors = {
         synovial: 0xD3D3D3, // Light gray
         fibrous: 0xD3D3D3, // Light gray
         cartilaginous: 0xD3D3D3 // Light gray
-    },
+    }
+    // Commented out other systems for initial deployment
+    /*
     // Muscular System
     muscular: {
         // Skeletal Muscles
@@ -143,157 +150,8 @@ const zAnatomyColors = {
         // Cardiac Muscle
         cardiac: 0xFF0000 // Red
     },
-    // Cardiovascular System
-    cardiovascular: {
-        // Arteries
-        aorta: 0xFF0000, // Red
-        pulmonary: 0xFF0000, // Red
-        coronary: 0xFF0000, // Red
-        carotid: 0xFF0000, // Red
-        subclavian: 0xFF0000, // Red
-        brachial: 0xFF0000, // Red
-        radial: 0xFF0000, // Red
-        iliac: 0xFF0000, // Red
-        femoral: 0xFF0000, // Red
-        // Veins
-        venaCava: 0x0000FF, // Blue
-        pulmonary: 0x0000FF, // Blue
-        jugular: 0x0000FF, // Blue
-        subclavian: 0x0000FF, // Blue
-        portal: 0x0000FF, // Blue
-        hepatic: 0x0000FF, // Blue
-        renal: 0x0000FF, // Blue
-        iliac: 0x0000FF, // Blue
-        femoral: 0x0000FF, // Blue
-        // Capillaries
-        capillary: 0x800080 // Purple
-    },
-    // Nervous System
-    nervous: {
-        // Central Nervous System
-        brain: 0xFFD700, // Gold
-        cerebrum: 0xFFD700, // Gold
-        cerebellum: 0xFFD700, // Gold
-        brainstem: 0xFFD700, // Gold
-        spinalCord: 0xFFA500, // Orange
-        // Peripheral Nervous System
-        cranialNerves: 0xFFB6C1, // Light pink
-        spinalNerves: 0xFFB6C1, // Light pink
-        autonomic: 0xFFB6C1, // Light pink
-        // Special Senses
-        eye: 0xFFFFFF, // White
-        ear: 0xFFFFFF, // White
-        nose: 0xFFFFFF, // White
-        tongue: 0xFFFFFF // White
-    },
-    // Visceral Systems
-    visceral: {
-        // Respiratory
-        lung: 0x87CEEB, // Sky blue
-        trachea: 0x87CEEB, // Sky blue
-        bronchi: 0x87CEEB, // Sky blue
-        // Digestive
-        esophagus: 0xFFA07A, // Light salmon
-        stomach: 0xFFA07A, // Light salmon
-        smallIntestine: 0xFFE4B5, // Moccasin
-        largeIntestine: 0xFFE4B5, // Moccasin
-        liver: 0x90EE90, // Light green
-        pancreas: 0x90EE90, // Light green
-        gallbladder: 0x90EE90, // Light green
-        // Urinary
-        kidney: 0xE6E6FA, // Lavender
-        ureter: 0xE6E6FA, // Lavender
-        bladder: 0xE6E6FA, // Lavender
-        // Reproductive
-        uterus: 0xFFB6C1, // Light pink
-        ovary: 0xFFB6C1, // Light pink
-        testis: 0xFFB6C1, // Light pink
-        prostate: 0xFFB6C1 // Light pink
-    },
-    // Lymphoid System
-    lymphoid: {
-        // Primary Lymphoid Organs
-        thymus: 0x98FB98, // Pale green
-        boneMarrow: 0x98FB98, // Pale green
-        // Secondary Lymphoid Organs
-        lymphNode: 0x98FB98, // Pale green
-        spleen: 0x90EE90, // Light green
-        tonsil: 0x98FB98, // Pale green
-        // Lymphatic Vessels
-        lymphatic: 0x98FB98 // Pale green
-    },
-    // Joints
-    joints: {
-        // Synovial Joints
-        ballAndSocket: 0xFFE4C4, // Bisque
-        hinge: 0xFFE4C4, // Bisque
-        pivot: 0xFFE4C4, // Bisque
-        condyloid: 0xFFE4C4, // Bisque
-        saddle: 0xFFE4C4, // Bisque
-        gliding: 0xFFE4C4, // Bisque
-        // Cartilaginous Joints
-        symphysis: 0xF5DEB3, // Wheat
-        synchondrosis: 0xF5DEB3, // Wheat
-        // Fibrous Joints
-        suture: 0xDEB887, // Burlywood
-        syndesmosis: 0xDEB887, // Burlywood
-        gomphosis: 0xDEB887 // Burlywood
-    },
-    // Regions
-    regions: {
-        // Head and Neck
-        head: 0xFFE4E1, // Misty rose
-        neck: 0xFFE4E1, // Misty rose
-        // Thorax
-        thorax: 0xFFE4E1, // Misty rose
-        // Abdomen
-        abdomen: 0xFFE4E1, // Misty rose
-        // Pelvis
-        pelvis: 0xFFE4E1, // Misty rose
-        // Limbs
-        upperLimb: 0xFFE4E1, // Misty rose
-        lowerLimb: 0xFFE4E1 // Misty rose
-    }
-};
-
-// Add related terms data
-const relatedTerms = {
-    skeletal: [
-        "Skull", "Vertebrae", "Ribs", "Pelvis", "Femur", "Tibia", "Fibula",
-        "Humerus", "Radius", "Ulna", "Carpals", "Metacarpals", "Phalanges"
-    ],
-    joints: [
-        "Ball and Socket Joint", "Hinge Joint", "Pivot Joint", "Saddle Joint",
-        "Plane Joint", "Condyloid Joint", "Synovial Joint", "Cartilaginous Joint"
-    ],
-    muscular: [
-        "Biceps", "Triceps", "Deltoid", "Pectoralis Major", "Latissimus Dorsi",
-        "Quadriceps", "Hamstrings", "Gastrocnemius", "Trapezius"
-    ],
-    muscular_insertion: [
-        "Tendon", "Ligament", "Muscle Origin", "Muscle Insertion",
-        "Myotendinous Junction", "Aponeurosis"
-    ],
-    cardiovascular: [
-        "Heart", "Aorta", "Pulmonary Artery", "Vena Cava", "Coronary Arteries",
-        "Carotid Artery", "Jugular Vein", "Capillaries"
-    ],
-    lymphoid: [
-        "Lymph Nodes", "Thymus", "Spleen", "Tonsils", "Bone Marrow",
-        "Lymphatic Vessels", "Peyer's Patches"
-    ],
-    nervous: [
-        "Brain", "Spinal Cord", "Cranial Nerves", "Peripheral Nerves",
-        "Neurons", "Synapses", "Ganglia", "Meninges"
-    ],
-    visceral: [
-        "Heart", "Lungs", "Liver", "Stomach", "Intestines", "Kidneys",
-        "Pancreas", "Gallbladder", "Bladder"
-    ],
-    regions: [
-        "Head", "Neck", "Thorax", "Abdomen", "Pelvis", "Upper Limb",
-        "Lower Limb", "Back", "Chest"
-    ]
+    // ... other systems ...
+    */
 };
 
 // Initialize loading bar
@@ -323,15 +181,14 @@ function initScene() {
     scene = new THREE.Scene();
     scene.background = new THREE.Color(isDarkMode ? 0x000000 : 0xffffff);
     
-    // Camera setup
+    // Camera setup with adjusted position and field of view
     camera = new THREE.PerspectiveCamera(
-        75, 
-        container.clientWidth / container.clientHeight, 
-        0.1, 
+        50, // Reduced field of view for better perspective
+        container.clientWidth / container.clientHeight,
+        0.1,
         1000
     );
-    camera.position.z = 5;
-    camera.position.x = -2; // Shift camera left
+    camera.position.set(0, 0, 7); // Increased Z position to show smaller model
     
     // Renderer setup
     renderer = new THREE.WebGLRenderer({ 
@@ -343,10 +200,13 @@ function initScene() {
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.shadowMap.enabled = true;
     
-    // Controls setup
+    // Controls setup with adjusted parameters
     controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
+    controls.minDistance = 5; // Increased minimum zoom distance
+    controls.maxDistance = 15; // Increased maximum zoom distance
+    controls.maxPolarAngle = Math.PI / 1.5; // Limit vertical rotation
     
     // Setup lighting
     setupLights();
@@ -390,11 +250,21 @@ function onCanvasClick(event) {
     const canvas = document.getElementById('scene-canvas');
     const rect = canvas.getBoundingClientRect();
     
-    mouse.x = ((event.clientX - rect.left) / canvas.width) * 2 - 1;
-    mouse.y = -((event.clientY - rect.top) / canvas.height) * 2 + 1;
+    // Calculate mouse position relative to canvas
+    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
     
     raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObjects(scene.children, true);
+    
+    // Only check for intersections with visible objects
+    const visibleObjects = [];
+    scene.traverse((object) => {
+        if (object instanceof THREE.Mesh && object.visible) {
+            visibleObjects.push(object);
+        }
+    });
+    
+    const intersects = raycaster.intersectObjects(visibleObjects, true);
     
     if (intersects.length > 0) {
         const selectedPart = intersects[0].object;
@@ -488,10 +358,10 @@ function loadModel(modelPath, systemName) {
                 const center = box.getCenter(new THREE.Vector3());
                 const size = box.getSize(new THREE.Vector3());
                 const maxDim = Math.max(size.x, size.y, size.z);
-                const scale = 6.5 / maxDim; // Increased scale factor from 2 to 3.5
+                const scale = 5.0 / maxDim; // Reduced scale factor from 6.5 to 4.5
                 
                 gltf.scene.position.sub(center.multiplyScalar(scale));
-                gltf.scene.position.y = -3.08; // Lower the model slightly
+                gltf.scene.position.y = -2.5; // Adjusted Y position
                 gltf.scene.scale.multiplyScalar(scale);
                 
                 // Add to scene and store reference
@@ -533,12 +403,11 @@ function extractModelData(gltf, systemName) {
         parts: []
     };
     
-    // In a real implementation, you would iterate through model parts
-    // and extract names, descriptions, etc.
-    
     // Sample data - in a real app this would come from the GLTF
     const sampleData = {
-        'skeletal': ['Skull', 'Vertebrae', 'Ribs', 'Pelvis', 'Femur', 'Tibia', 'Humerus'],
+        'skeletal': ['Skull', 'Vertebrae', 'Ribs', 'Pelvis', 'Femur', 'Tibia', 'Humerus']
+        // Commented out other systems for initial deployment
+        /*
         'joints': ['Knee Joint', 'Hip Joint', 'Shoulder Joint', 'Elbow Joint', 'Ankle Joint'],
         'muscular': ['Biceps', 'Triceps', 'Quadriceps', 'Hamstrings', 'Pectoralis'],
         'muscular_insertion': ['Biceps Insertion', 'Triceps Insertion', 'Quadriceps Insertion'],
@@ -547,6 +416,7 @@ function extractModelData(gltf, systemName) {
         'nervous': ['Brain', 'Spinal Cord', 'Cranial Nerves', 'Sciatic Nerve', 'Brachial Plexus'],
         'visceral': ['Heart', 'Lungs', 'Liver', 'Stomach', 'Intestines', 'Kidneys'],
         'regions': ['Head', 'Neck', 'Thorax', 'Abdomen', 'Upper Limb', 'Lower Limb']
+        */
     };
     
     // Add the sample data to our anatomyData object
@@ -600,12 +470,29 @@ function toggleFullscreen() {
 
 // Take screenshot
 function takeScreenshot() {
-    html2canvas(document.body).then(canvas => {
-        const link = document.createElement('a');
-        link.download = 'anatomyhero-screenshot.png';
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-    });
+    // Create a temporary canvas to render the scene
+    const tempCanvas = document.createElement('canvas');
+    const tempContext = tempCanvas.getContext('2d');
+    
+    // Set the temporary canvas size to match the renderer
+    tempCanvas.width = renderer.domElement.width;
+    tempCanvas.height = renderer.domElement.height;
+    
+    // Render the scene to the temporary canvas
+    renderer.render(scene, camera);
+    
+    // Get the data URL from the renderer's canvas
+    const dataURL = renderer.domElement.toDataURL('image/png');
+    
+    // Create a download link
+    const link = document.createElement('a');
+    link.download = 'anatomyhero-screenshot.png';
+    link.href = dataURL;
+    
+    // Trigger the download
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 // Toggle dark/light mode
@@ -827,11 +714,21 @@ function onMouseMove(event) {
     const canvas = document.getElementById('scene-canvas');
     const rect = canvas.getBoundingClientRect();
     
-    mouse.x = ((event.clientX - rect.left) / canvas.width) * 2 - 1;
-    mouse.y = -((event.clientY - rect.top) / canvas.height) * 2 + 1;
+    // Calculate mouse position relative to canvas
+    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
     
     raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObjects(scene.children, true);
+    
+    // Only check for intersections with visible objects
+    const visibleObjects = [];
+    scene.traverse((object) => {
+        if (object instanceof THREE.Mesh && object.visible) {
+            visibleObjects.push(object);
+        }
+    });
+    
+    const intersects = raycaster.intersectObjects(visibleObjects, true);
     
     // Reset all objects to original materials except selected
     scene.traverse((object) => {
@@ -945,25 +842,6 @@ function applyZAnatomyColors(object, systemName) {
     });
 }
 
-// Function to update suggestions based on selected system
-function updateSuggestions(systemId) {
-    const suggestionsContent = document.getElementById('suggestions-content');
-    const terms = relatedTerms[systemId];
-    
-    if (!terms) {
-        suggestionsContent.innerHTML = '<p class="no-selection">Select a system to see related terms</p>';
-        return;
-    }
-    
-    let html = '<ul class="terms-list">';
-    terms.forEach(term => {
-        html += `<li>${term}</li>`;
-    });
-    html += '</ul>';
-    
-    suggestionsContent.innerHTML = html;
-}
-
 // Function to search for a term when clicked
 function searchForTerm(term) {
     const searchInput = document.getElementById('search-input');
@@ -986,7 +864,34 @@ document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('scene-canvas');
     canvas.addEventListener('click', onCanvasClick);
     canvas.addEventListener('mousemove', onMouseMove);
-    closeDescriptionBtn.addEventListener('click', resetSelection);
+    
+    // Add expand button functionality
+    const expandBtn = document.getElementById('expand-description');
+    const infoContent = document.getElementById('info-panel-content');
+    
+    expandBtn.addEventListener('click', () => {
+        expandBtn.classList.toggle('expanded');
+        infoContent.classList.toggle('expanded');
+    });
+
+    // Add view options functionality
+    const viewOptions = document.querySelectorAll('.view-option');
+    viewOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            const action = option.querySelector('span').textContent.toLowerCase();
+            switch(action) {
+                case 'annotate':
+                    toggleAnnotationMode();
+                    break;
+                case 'fade':
+                    toggleFadeMode();
+                    break;
+                case 'isolate':
+                    toggleIsolateMode();
+                    break;
+            }
+        });
+    });
     
     // Load models
     const systemCheckboxes = document.querySelectorAll('.system-checkbox');
@@ -1008,9 +913,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         toggleSystem(cb.id, false);
                     }
                 });
-                updateSuggestions(systemName);
-            } else {
-                suggestionsContent.innerHTML = '<p class="no-selection">Select a system to see related terms</p>';
             }
         });
     });
@@ -1045,7 +947,79 @@ document.addEventListener('DOMContentLoaded', () => {
     searchInput.addEventListener('input', (e) => {
         performSearch(e.target.value);
     });
+
+    const hideInterfaceBtn = document.getElementById('hide-interface-btn');
+    let isInterfaceHidden = false;
+
+    hideInterfaceBtn.addEventListener('click', function() {
+        isInterfaceHidden = !isInterfaceHidden;
+        document.body.classList.toggle('interface-hidden', isInterfaceHidden);
+        
+        // Update button icon and text
+        const icon = hideInterfaceBtn.querySelector('i');
+        const text = hideInterfaceBtn.querySelector('span') || document.createElement('span');
+        
+        if (isInterfaceHidden) {
+            icon.className = 'fas fa-eye';
+            text.textContent = 'Show Interface';
+        } else {
+            icon.className = 'fas fa-eye-slash';
+            text.textContent = 'Hide Interface';
+        }
+        
+        if (!hideInterfaceBtn.contains(text)) {
+            hideInterfaceBtn.appendChild(text);
+        }
+
+        // Adjust camera and controls if needed
+        if (isInterfaceHidden) {
+            // You might want to adjust the camera position or controls here
+            // For example:
+            // camera.position.set(0, 0, 5);
+            // controls.update();
+        }
+    });
+});
+
+// View options functions
+function toggleAnnotationMode() {
+    // Toggle annotation mode
+    const isAnnotationMode = document.body.classList.toggle('annotation-mode');
+    const annotateOption = document.querySelector('.view-option:first-child');
+    annotateOption.style.backgroundColor = isAnnotationMode ? 'var(--primary-color)' : '';
+    annotateOption.style.color = isAnnotationMode ? 'var(--bg-color)' : '';
+}
+
+function toggleFadeMode() {
+    // Toggle fade mode
+    const isFadeMode = document.body.classList.toggle('fade-mode');
+    const fadeOption = document.querySelector('.view-option:nth-child(2)');
+    fadeOption.style.backgroundColor = isFadeMode ? 'var(--primary-color)' : '';
+    fadeOption.style.color = isFadeMode ? 'var(--bg-color)' : '';
     
-    // Show skeletal system suggestions by default since it's checked
-    updateSuggestions('skeletal');
-}); 
+    // Adjust opacity of non-selected parts
+    scene.traverse((object) => {
+        if (object instanceof THREE.Mesh && object !== selectedObject) {
+            if (isFadeMode) {
+                object.material.opacity = 0.3;
+            } else {
+                object.material.opacity = 0.8;
+            }
+        }
+    });
+}
+
+function toggleIsolateMode() {
+    // Toggle isolate mode
+    const isIsolateMode = document.body.classList.toggle('isolate-mode');
+    const isolateOption = document.querySelector('.view-option:last-child');
+    isolateOption.style.backgroundColor = isIsolateMode ? 'var(--primary-color)' : '';
+    isolateOption.style.color = isIsolateMode ? 'var(--bg-color)' : '';
+    
+    // Hide/show non-selected parts
+    scene.traverse((object) => {
+        if (object instanceof THREE.Mesh && object !== selectedObject) {
+            object.visible = !isIsolateMode;
+        }
+    });
+} 
