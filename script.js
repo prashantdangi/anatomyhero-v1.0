@@ -341,9 +341,15 @@ function loadModel(modelPath, systemName) {
         dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
         loader.setDRACOLoader(dracoLoader);
         
+        // Update the path to use the correct base URL
+        const modelUrl = `/models/${modelPath}`; // Add leading slash for absolute path
+        
+        console.log(`Loading model from: ${modelUrl}`); // Debug log
+        
         loader.load(
-            `models/${modelPath}`,
+            modelUrl,
             (gltf) => {
+                console.log(`Successfully loaded model: ${modelPath}`); // Debug log
                 // Extract any text content from the model for search
                 extractModelData(gltf, systemName);
                 
@@ -358,10 +364,10 @@ function loadModel(modelPath, systemName) {
                 const center = box.getCenter(new THREE.Vector3());
                 const size = box.getSize(new THREE.Vector3());
                 const maxDim = Math.max(size.x, size.y, size.z);
-                const scale = 5.0 / maxDim; // Reduced scale factor from 6.5 to 4.5
+                const scale = 5.0 / maxDim;
                 
                 gltf.scene.position.sub(center.multiplyScalar(scale));
-                gltf.scene.position.y = -2.5; // Adjusted Y position
+                gltf.scene.position.y = -2.5;
                 gltf.scene.scale.multiplyScalar(scale);
                 
                 // Add to scene and store reference
@@ -383,6 +389,22 @@ function loadModel(modelPath, systemName) {
             (error) => {
                 console.error(`Error loading model ${modelPath}:`, error);
                 document.getElementById('loading-text').textContent = `Error loading ${systemName}. Please check console for details.`;
+                
+                // Show more detailed error information
+                const errorMessage = document.createElement('div');
+                errorMessage.style.color = 'red';
+                errorMessage.style.padding = '10px';
+                errorMessage.style.margin = '10px';
+                errorMessage.style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
+                errorMessage.style.borderRadius = '5px';
+                errorMessage.innerHTML = `
+                    <strong>Error loading model:</strong><br>
+                    Model: ${modelPath}<br>
+                    URL: ${modelUrl}<br>
+                    Error: ${error.message}
+                `;
+                document.getElementById('loading-container').appendChild(errorMessage);
+                
                 reject(error);
             }
         );
