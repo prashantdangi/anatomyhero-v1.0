@@ -24,9 +24,7 @@ const partDescriptions = {
     "skeletal": {
         title: "Skeletal System",
         info: "The skeletal system provides structural support and protection for the body's organs. It consists of bones, cartilage, and ligaments."
-    }
-    // Commented out other systems for initial deployment
-    /*
+    },
     "muscular": {
         title: "Muscular System",
         info: "The muscular system enables movement and maintains posture. It consists of skeletal, smooth, and cardiac muscles."
@@ -55,7 +53,6 @@ const partDescriptions = {
         title: "Regions of Human Body",
         info: "The human body is divided into major regions including the head, neck, thorax, abdomen, and limbs."
     }
-    */
 };
 
 // Detailed parts (shown in search)
@@ -72,9 +69,7 @@ const detailedPartDescriptions = {
     "ribs": {
         title: "Ribs",
         info: "The ribs are long curved bones that form the rib cage, protecting the thoracic organs such as the heart and lungs."
-    }
-    // Commented out other systems for initial deployment
-    /*
+    },
     // Muscular System
     "biceps": {
         title: "Biceps",
@@ -93,7 +88,6 @@ const detailedPartDescriptions = {
         title: "Aorta",
         info: "The aorta is the largest artery in the body, originating from the left ventricle of the heart and extending down to the abdomen."
     }
-    */
 };
 
 // Z-Anatomy and ZygoteBody detailed color scheme
@@ -342,14 +336,43 @@ function loadModel(modelPath, systemName) {
         loader.setDRACOLoader(dracoLoader);
         
         // Update the path to use the correct base URL
-        const modelUrl = `/models/${modelPath}`; // Add leading slash for absolute path
+        const modelUrl = `./public/models/${modelPath}`; // Updated path
         
-        console.log(`Loading model from: ${modelUrl}`); // Debug log
+        console.log(`Attempting to load model from: ${modelUrl}`); // Debug log
+        
+        // Add error handling for missing model
+        const errorHandler = (error) => {
+            console.error(`Error loading model ${modelPath}:`, error);
+            const errorMessage = `Failed to load ${systemName} model. Please ensure the model file exists at: ${modelUrl}`;
+            document.getElementById('loading-text').textContent = errorMessage;
+            
+            // Show more detailed error information
+            const errorDiv = document.createElement('div');
+            errorDiv.style.color = 'red';
+            errorDiv.style.padding = '10px';
+            errorDiv.style.margin = '10px';
+            errorDiv.style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
+            errorDiv.style.borderRadius = '5px';
+            errorDiv.innerHTML = `
+                <strong>Error loading model:</strong><br>
+                Model: ${modelPath}<br>
+                URL: ${modelUrl}<br>
+                Error: ${error.message || 'Model file not found'}<br>
+                <br>
+                Please ensure:<br>
+                1. The model file exists in the public/models directory<br>
+                2. The file name matches exactly (case-sensitive)<br>
+                3. The file is a valid GLB format
+            `;
+            document.getElementById('loading-container').appendChild(errorDiv);
+            
+            reject(new Error(errorMessage));
+        };
         
         loader.load(
             modelUrl,
             (gltf) => {
-                console.log(`Successfully loaded model: ${modelPath}`); // Debug log
+                console.log(`Successfully loaded model: ${modelPath}`);
                 // Extract any text content from the model for search
                 extractModelData(gltf, systemName);
                 
@@ -386,27 +409,7 @@ function loadModel(modelPath, systemName) {
                 const percent = (xhr.loaded / xhr.total * 100).toFixed(0);
                 document.getElementById('loading-text').textContent = `Loading ${systemName}... ${percent}%`;
             },
-            (error) => {
-                console.error(`Error loading model ${modelPath}:`, error);
-                document.getElementById('loading-text').textContent = `Error loading ${systemName}. Please check console for details.`;
-                
-                // Show more detailed error information
-                const errorMessage = document.createElement('div');
-                errorMessage.style.color = 'red';
-                errorMessage.style.padding = '10px';
-                errorMessage.style.margin = '10px';
-                errorMessage.style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
-                errorMessage.style.borderRadius = '5px';
-                errorMessage.innerHTML = `
-                    <strong>Error loading model:</strong><br>
-                    Model: ${modelPath}<br>
-                    URL: ${modelUrl}<br>
-                    Error: ${error.message}
-                `;
-                document.getElementById('loading-container').appendChild(errorMessage);
-                
-                reject(error);
-            }
+            errorHandler
         );
     });
 }
