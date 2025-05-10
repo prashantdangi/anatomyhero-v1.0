@@ -12,6 +12,26 @@ let originalMaterials = new Map();
 let lastMouseMoveTime = 0;
 const mouseMoveThreshold = 100; // ms
 
+// Annotation related variables
+let isAnnotationMode = false;
+let currentAnnotationPoint = null;
+let annotations = {};
+
+// Add to global variables at the top
+let isIsolateMode = false;
+let isolatedObject = null;
+let isDragging = false;
+let dragStart = new THREE.Vector2();
+let dragEnd = new THREE.Vector2();
+let selectionBox = null;
+let originalControlsEnabled = true;
+let selectionGrid = null;
+
+// Add these variables at the top with other global variables
+let isSelecting = false;
+let selectionStart = new THREE.Vector2();
+let selectionEnd = new THREE.Vector2();
+
 // DOM Elements
 const descriptionPanel = document.getElementById('info-panel');
 const closeDescriptionBtn = document.getElementById('close-description');
@@ -250,38 +270,40 @@ function onCanvasClick(event) {
     
     raycaster.setFromCamera(mouse, camera);
     
-    // Only check for intersections with visible objects
-    const visibleObjects = [];
-    scene.traverse((object) => {
-        if (object instanceof THREE.Mesh && object.visible) {
-            visibleObjects.push(object);
+    if (isIsolateMode) {
+        // Don't handle click in isolate mode, let the drag events handle it
+        return;
+    } else if (isAnnotationMode) {
+        const intersects = raycaster.intersectObjects(scene.children, true);
+        
+        if (intersects.length > 0) {
+            currentAnnotationPoint = intersects[0].point;
+            showAnnotationDialog();
         }
-    });
-    
-    const intersects = raycaster.intersectObjects(visibleObjects, true);
-    
-    if (intersects.length > 0) {
-        const selectedPart = intersects[0].object;
-        
-        // Reset previous selection
-        resetSelection();
-        
-        // Set new selection
-        selectedObject = selectedPart;
-        
-        // Store original material
-        if (!originalMaterials.has(selectedPart.id)) {
-            originalMaterials.set(selectedPart.id, selectedPart.material.clone());
-        }
-        
-        // Highlight the selected part
-        highlightObject(selectedPart);
-        
-        // Show description
-        showPartDescription(selectedPart);
     } else {
-        // Reset selection if clicking on empty space
-        resetSelection();
+        const visibleObjects = [];
+        scene.traverse((object) => {
+            if (object instanceof THREE.Mesh && object.visible) {
+                visibleObjects.push(object);
+            }
+        });
+        
+        const intersects = raycaster.intersectObjects(visibleObjects, true);
+        
+        if (intersects.length > 0) {
+            const selectedPart = intersects[0].object;
+            resetSelection();
+            selectedObject = selectedPart;
+            
+            if (!originalMaterials.has(selectedPart.id)) {
+                originalMaterials.set(selectedPart.id, selectedPart.material.clone());
+            }
+            
+            highlightObject(selectedPart);
+            showPartDescription(selectedPart);
+        } else {
+            resetSelection();
+        }
     }
 }
 
@@ -417,6 +439,7 @@ function loadModel(modelPath, systemName) {
 function animate() {
     requestAnimationFrame(animate);
     controls.update();
+    updateAnnotationPositions();
     renderer.render(scene, camera);
 }
 
@@ -467,6 +490,7 @@ function toggleSystem(systemName, isVisible) {
 
 // Reset view
 function resetView() {
+    // Reset camera controls
     controls.reset();
     
     // Reset all checkboxes
@@ -474,10 +498,70 @@ function resetView() {
         checkbox.checked = false;
     });
     
-    // Hide all models
+    // Hide all models first
     Object.keys(loadedModels).forEach(key => {
         loadedModels[key].visible = false;
     });
+    
+    // Show only the skeletal model
+    if (loadedModels['skeletal']) {
+        loadedModels['skeletal'].visible = true;
+        // Check the skeletal checkbox
+        const skeletalCheckbox = document.getElementById('skeletal');
+        if (skeletalCheckbox) {
+            skeletalCheckbox.checked = true;
+        }
+    }
+    
+    // Reset isolated object and selection box
+    if (isolatedObject || selectionBox) {
+        scene.traverse((object) => {
+            if (object instanceof THREE.Mesh) {
+                object.visible = true;
+            }
+        });
+        if (selectionBox) {
+            selectionBox.visible = false;
+        }
+        isolatedObject = null;
+    }
+    
+    // Reset cursor
+    const canvas = document.getElementById('scene-canvas');
+    canvas.style.cursor = 'default';
+    
+    // Exit isolate mode if active
+    if (isIsolateMode) {
+        isIsolateMode = false;
+        document.body.classList.remove('isolate-mode');
+        const isolateOption = document.querySelector('.view-option:last-child');
+        isolateOption.classList.remove('active');
+    }
+    
+    // Reset fade mode if active
+    if (document.body.classList.contains('fade-mode')) {
+        document.body.classList.remove('fade-mode');
+        const fadeOption = document.querySelector('.view-option:nth-child(2)');
+        fadeOption.classList.remove('active');
+        
+        // Reset opacity of all objects
+        scene.traverse((object) => {
+            if (object instanceof THREE.Mesh) {
+                object.material.opacity = 0.8;
+            }
+        });
+    }
+    
+    // Reset annotation mode if active
+    if (isAnnotationMode) {
+        isAnnotationMode = false;
+        document.body.classList.remove('annotation-mode');
+        const annotateOption = document.querySelector('.view-option:first-child');
+        annotateOption.classList.remove('active');
+    }
+    
+    // Reset selection
+    resetSelection();
 }
 
 // Toggle fullscreen
@@ -755,12 +839,19 @@ function onMouseMove(event) {
     
     const intersects = raycaster.intersectObjects(visibleObjects, true);
     
+    // Check if fade mode is active
+    const isFadeMode = document.body.classList.contains('fade-mode');
+    
     // Reset all objects to original materials except selected
     scene.traverse((object) => {
         if (object instanceof THREE.Mesh && object !== selectedObject) {
             if (originalMaterials.has(object.id)) {
                 const origMaterial = originalMaterials.get(object.id);
                 object.material = origMaterial.clone();
+                // Maintain fade mode opacity
+                if (isFadeMode) {
+                    object.material.opacity = 0.3;
+                }
             }
         }
     });
@@ -777,6 +868,10 @@ function onMouseMove(event) {
             if (hoverMaterial.emissive !== undefined) {
                 hoverMaterial.emissive = new THREE.Color(0x333333);
             }
+            // Maintain fade mode opacity even on hover
+            if (isFadeMode) {
+                hoverMaterial.opacity = 0.3;
+            }
             hoveredPart.material = hoverMaterial;
             
             canvas.style.cursor = 'pointer';
@@ -790,13 +885,16 @@ function onMouseMove(event) {
 
 // Highlight selected object
 function highlightObject(object) {
-    if (object instanceof THREE.Mesh) {
-        const highlightMaterial = originalMaterials.get(object.id).clone();
-        highlightMaterial.emissive = new THREE.Color(0x999900);
-        highlightMaterial.emissiveIntensity = 0.5;
-        highlightMaterial.opacity = 1.0; // Make highlighted part fully opaque
-        object.material = highlightMaterial;
+    if (!originalMaterials.has(object.id)) {
+        originalMaterials.set(object.id, object.material.clone());
     }
+    
+    const highlightMaterial = originalMaterials.get(object.id).clone();
+    highlightMaterial.emissive = new THREE.Color(0x999900);
+    highlightMaterial.emissiveIntensity = 0.5;
+    highlightMaterial.opacity = 1.0;
+    highlightMaterial.transparent = true;
+    object.material = highlightMaterial;
 }
 
 // Reset selection
@@ -872,6 +970,146 @@ function searchForTerm(term) {
     const searchInput = document.getElementById('search-input');
     searchInput.value = term;
     performSearch(term);
+}
+
+// Load annotations from localStorage
+function loadAnnotations() {
+    const savedAnnotations = localStorage.getItem('anatomyAnnotations');
+    if (savedAnnotations) {
+        annotations = JSON.parse(savedAnnotations);
+        displayAnnotations();
+    }
+}
+
+// Save annotations to localStorage
+function saveAnnotations() {
+    localStorage.setItem('anatomyAnnotations', JSON.stringify(annotations));
+}
+
+// Display all annotations
+function displayAnnotations() {
+    const container = document.getElementById('annotations-container');
+    container.innerHTML = '';
+    
+    Object.keys(annotations).forEach(key => {
+        const annotation = annotations[key];
+        const marker = document.createElement('div');
+        marker.className = 'annotation-marker';
+        marker.dataset.id = key;
+        
+        const popup = document.createElement('div');
+        popup.className = 'annotation-popup';
+        popup.innerHTML = `
+            <div class="popup-header">
+                <h4>${annotation.title}</h4>
+                <div class="popup-actions">
+                    <button class="delete-annotation" title="Delete annotation">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    <button class="close-popup">&times;</button>
+                </div>
+            </div>
+            <p>${annotation.description}</p>
+        `;
+        
+        marker.appendChild(popup);
+        container.appendChild(marker);
+        
+        // Add click event to show/hide popup
+        marker.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const popup = marker.querySelector('.annotation-popup');
+            popup.classList.toggle('active');
+        });
+        
+        // Add click event to close popup
+        const closeBtn = popup.querySelector('.close-popup');
+        closeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            popup.classList.remove('active');
+        });
+
+        // Add click event to delete annotation
+        const deleteBtn = popup.querySelector('.delete-annotation');
+        deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (confirm('Are you sure you want to delete this annotation?')) {
+                delete annotations[key];
+                saveAnnotations();
+                displayAnnotations();
+            }
+        });
+    });
+    
+    // Update annotation positions
+    updateAnnotationPositions();
+}
+
+// Update annotation positions based on camera and model movement
+function updateAnnotationPositions() {
+    Object.keys(annotations).forEach(key => {
+        const annotation = annotations[key];
+        const marker = document.querySelector(`.annotation-marker[data-id="${key}"]`);
+        if (marker) {
+            const worldPosition = new THREE.Vector3().fromArray(annotation.worldPosition);
+            const screenPos = getScreenPosition(worldPosition);
+            marker.style.left = `${screenPos.x}px`;
+            marker.style.top = `${screenPos.y}px`;
+        }
+    });
+}
+
+// Show annotation dialog
+function showAnnotationDialog() {
+    const dialog = document.getElementById('annotation-dialog');
+    dialog.classList.add('active');
+    
+    // Clear previous values
+    document.getElementById('annotation-title').value = '';
+    document.getElementById('annotation-description').value = '';
+    
+    // Add event listeners for dialog buttons
+    const saveBtn = document.getElementById('save-annotation');
+    const cancelBtn = document.getElementById('cancel-annotation');
+    const closeBtn = document.querySelector('.close-dialog-btn');
+    
+    const closeDialog = () => {
+        dialog.classList.remove('active');
+        currentAnnotationPoint = null;
+    };
+    
+    saveBtn.onclick = () => {
+        const title = document.getElementById('annotation-title').value.trim();
+        const description = document.getElementById('annotation-description').value.trim();
+        
+        if (title && description && currentAnnotationPoint) {
+            const annotationId = Date.now().toString();
+            
+            annotations[annotationId] = {
+                title,
+                description,
+                worldPosition: currentAnnotationPoint.toArray()
+            };
+            
+            saveAnnotations();
+            displayAnnotations();
+            closeDialog();
+        }
+    };
+    
+    cancelBtn.onclick = closeDialog;
+    closeBtn.onclick = closeDialog;
+}
+
+// Convert 3D position to screen coordinates
+function getScreenPosition(position) {
+    const vector = position.clone();
+    vector.project(camera);
+    
+    const x = (vector.x * 0.5 + 0.5) * renderer.domElement.clientWidth;
+    const y = -(vector.y * 0.5 - 0.5) * renderer.domElement.clientHeight;
+    
+    return { x, y };
 }
 
 // Initialize the application
@@ -1004,23 +1242,37 @@ document.addEventListener('DOMContentLoaded', () => {
             // controls.update();
         }
     });
+
+    // Load saved annotations
+    loadAnnotations();
+    
+    // Add click event listener to close annotation popups when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.annotation-marker')) {
+            document.querySelectorAll('.annotation-popup.active').forEach(popup => {
+                popup.classList.remove('active');
+            });
+        }
+    });
 });
 
 // View options functions
 function toggleAnnotationMode() {
-    // Toggle annotation mode
-    const isAnnotationMode = document.body.classList.toggle('annotation-mode');
+    isAnnotationMode = !isAnnotationMode;
+    document.body.classList.toggle('annotation-mode', isAnnotationMode);
     const annotateOption = document.querySelector('.view-option:first-child');
-    annotateOption.style.backgroundColor = isAnnotationMode ? 'var(--primary-color)' : '';
-    annotateOption.style.color = isAnnotationMode ? 'var(--bg-color)' : '';
+    annotateOption.classList.toggle('active', isAnnotationMode);
+    
+    // Change cursor when in annotation mode
+    const canvas = document.getElementById('scene-canvas');
+    canvas.style.cursor = isAnnotationMode ? 'crosshair' : 'default';
 }
 
 function toggleFadeMode() {
     // Toggle fade mode
     const isFadeMode = document.body.classList.toggle('fade-mode');
     const fadeOption = document.querySelector('.view-option:nth-child(2)');
-    fadeOption.style.backgroundColor = isFadeMode ? 'var(--primary-color)' : '';
-    fadeOption.style.color = isFadeMode ? 'var(--bg-color)' : '';
+    fadeOption.classList.toggle('active', isFadeMode);
     
     // Adjust opacity of non-selected parts
     scene.traverse((object) => {
@@ -1034,17 +1286,229 @@ function toggleFadeMode() {
     });
 }
 
-function toggleIsolateMode() {
-    // Toggle isolate mode
-    const isIsolateMode = document.body.classList.toggle('isolate-mode');
-    const isolateOption = document.querySelector('.view-option:last-child');
-    isolateOption.style.backgroundColor = isIsolateMode ? 'var(--primary-color)' : '';
-    isolateOption.style.color = isIsolateMode ? 'var(--bg-color)' : '';
+function createSelectionGrid() {
+    const size = 10;
+    const divisions = 10;
+    const gridHelper = new THREE.GridHelper(size, divisions, 0x00ff00, 0x00ff00);
+    gridHelper.material.opacity = 0.3;
+    gridHelper.material.transparent = true;
+    gridHelper.position.y = -2.5; // Match the model's y position
+    gridHelper.visible = false;
+    scene.add(gridHelper);
+    return gridHelper;
+}
+
+function createSelectionBox() {
+    const div = document.createElement('div');
+    div.className = 'selection-box';
+    div.style.display = 'none';
+    document.body.appendChild(div);
+    return div;
+}
+
+function updateSelectionBox(start, end) {
+    const left = Math.min(start.x, end.x);
+    const top = Math.min(start.y, end.y);
+    const width = Math.abs(end.x - start.x);
+    const height = Math.abs(end.y - start.y);
     
-    // Hide/show non-selected parts
+    selectionBox.style.left = left + 'px';
+    selectionBox.style.top = top + 'px';
+    selectionBox.style.width = width + 'px';
+    selectionBox.style.height = height + 'px';
+}
+
+function getObjectsInSelectionBox() {
+    const objects = [];
+    const rect = selectionBox.getBoundingClientRect();
+    const canvas = document.getElementById('scene-canvas');
+    const canvasRect = canvas.getBoundingClientRect();
+    
+    // Convert selection box to normalized device coordinates
+    const startX = ((rect.left - canvasRect.left) / canvasRect.width) * 2 - 1;
+    const startY = -((rect.top - canvasRect.top) / canvasRect.height) * 2 + 1;
+    const endX = ((rect.right - canvasRect.left) / canvasRect.width) * 2 - 1;
+    const endY = -((rect.bottom - canvasRect.top) / canvasRect.height) * 2 + 1;
+    
+    // Get all visible meshes
+    const visibleMeshes = [];
     scene.traverse((object) => {
-        if (object instanceof THREE.Mesh && object !== selectedObject) {
-            object.visible = !isIsolateMode;
+        if (object instanceof THREE.Mesh && object.visible) {
+            visibleMeshes.push(object);
         }
     });
+    
+    // Check each visible mesh
+    visibleMeshes.forEach((mesh) => {
+        // Get the bounding box of the mesh
+        const boundingBox = new THREE.Box3().setFromObject(mesh);
+        const center = boundingBox.getCenter(new THREE.Vector3());
+        
+        // Project the center point to screen coordinates
+        const screenPos = center.clone().project(camera);
+        
+        // Check if the mesh's center is within the selection box
+        const isInBox = screenPos.x >= Math.min(startX, endX) && 
+                       screenPos.x <= Math.max(startX, endX) && 
+                       screenPos.y >= Math.min(startY, endY) && 
+                       screenPos.y <= Math.max(startY, endY);
+        
+        if (isInBox) {
+            objects.push(mesh);
+        }
+    });
+    
+    return objects;
+}
+
+function onIsolateMouseDown(event) {
+    if (!isIsolateMode) return;
+    
+    const canvas = document.getElementById('scene-canvas');
+    const rect = canvas.getBoundingClientRect();
+    
+    isSelecting = true;
+    canvas.classList.add('selecting');
+    
+    // Store the initial mouse position relative to the canvas
+    selectionStart.x = event.clientX - rect.left;
+    selectionStart.y = event.clientY - rect.top;
+    selectionEnd.copy(selectionStart);
+    
+    if (!selectionBox) {
+        selectionBox = createSelectionBox();
+    }
+    
+    selectionBox.style.display = 'block';
+    updateSelectionBox(selectionStart, selectionEnd);
+}
+
+function onIsolateMouseMove(event) {
+    if (!isSelecting) return;
+    
+    const canvas = document.getElementById('scene-canvas');
+    const rect = canvas.getBoundingClientRect();
+    
+    // Update the end position relative to the canvas
+    selectionEnd.x = event.clientX - rect.left;
+    selectionEnd.y = event.clientY - rect.top;
+    
+    updateSelectionBox(selectionStart, selectionEnd);
+}
+
+function onIsolateMouseUp(event) {
+    if (!isSelecting) return;
+    
+    const canvas = document.getElementById('scene-canvas');
+    canvas.classList.remove('selecting');
+    isSelecting = false;
+    
+    if (selectionBox) {
+        selectionBox.style.display = 'none';
+    }
+    
+    // Get objects in selection box
+    const selectedObjects = getObjectsInSelectionBox();
+    
+    if (selectedObjects.length > 0) {
+        // First, hide all objects in the scene
+        scene.traverse((object) => {
+            if (object instanceof THREE.Mesh) {
+                object.visible = false;
+                object.userData.originalVisibility = false;
+            }
+        });
+        
+        // Then show only the selected objects
+        selectedObjects.forEach((object) => {
+            // Make sure the object and its parent are visible
+            object.visible = true;
+            object.userData.originalVisibility = true;
+            
+            let parent = object.parent;
+            while (parent && parent !== scene) {
+                parent.visible = true;
+                parent = parent.parent;
+            }
+            
+            // Center the camera on the selected object
+            const box = new THREE.Box3().setFromObject(object);
+            const center = box.getCenter(new THREE.Vector3());
+            const size = box.getSize(new THREE.Vector3());
+            
+            // Adjust camera position to focus on the selected object
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const fov = camera.fov * (Math.PI / 180);
+            let cameraZ = Math.abs(maxDim / Math.sin(fov / 2));
+            
+            // Add some padding
+            cameraZ *= 1.5;
+            
+            // Set camera position
+            camera.position.set(center.x, center.y, center.z + cameraZ);
+            camera.lookAt(center);
+            
+            // Update controls target
+            controls.target.copy(center);
+            controls.update();
+        });
+        
+        // Show description for the first selected object
+        if (selectedObjects[0]) {
+            showPartDescription(selectedObjects[0]);
+        }
+    }
+}
+
+function toggleIsolateMode() {
+    isIsolateMode = !isIsolateMode;
+    
+    document.body.classList.toggle('isolate-mode', isIsolateMode);
+    const isolateOption = document.querySelector('.view-option:last-child');
+    isolateOption.classList.toggle('active', isIsolateMode);
+    
+    const canvas = document.getElementById('scene-canvas');
+    
+    if (isIsolateMode) {
+        // Store current controls state and disable them
+        originalControlsEnabled = controls.enabled;
+        controls.enabled = false;
+        
+        // Add mouse event listeners for selection
+        canvas.addEventListener('mousedown', onIsolateMouseDown);
+        canvas.addEventListener('mousemove', onIsolateMouseMove);
+        canvas.addEventListener('mouseup', onIsolateMouseUp);
+        
+        // Make sure all objects are visible when entering isolate mode
+        scene.traverse((object) => {
+            if (object instanceof THREE.Mesh) {
+                object.visible = true;
+                object.userData.originalVisibility = true;
+            }
+        });
+    } else {
+        // Restore controls state
+        controls.enabled = originalControlsEnabled;
+        
+        // Remove mouse event listeners
+        canvas.removeEventListener('mousedown', onIsolateMouseDown);
+        canvas.removeEventListener('mousemove', onIsolateMouseMove);
+        canvas.removeEventListener('mouseup', onIsolateMouseUp);
+        
+        // Remove selection box if it exists
+        if (selectionBox) {
+            selectionBox.remove();
+            selectionBox = null;
+        }
+        
+        // Restore all objects to their original state
+        scene.traverse((object) => {
+            if (object instanceof THREE.Mesh) {
+                object.visible = object.userData.originalVisibility !== undefined ? 
+                               object.userData.originalVisibility : true;
+            }
+        });
+        
+        isolatedObject = null;
+    }
 } 

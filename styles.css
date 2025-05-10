@@ -861,7 +861,8 @@ body {
     margin-bottom: 8px;
     border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: all 0.3s ease;
+    background-color: var(--card-bg);
 }
 
 .view-option:last-child {
@@ -872,15 +873,357 @@ body {
     background-color: var(--bg-color);
 }
 
+.view-option.active {
+    background-color: var(--primary-color);
+    color: var(--bg-color);
+}
+
+.view-option.active i,
+.view-option.active span {
+    color: var(--bg-color);
+}
+
 .view-option i {
     margin-right: 12px;
     font-size: 14px;
     color: var(--text-color);
+    transition: color 0.3s ease;
 }
 
 .view-option span {
     font-size: 13px;
     color: var(--text-color);
+    transition: color 0.3s ease;
+}
+
+/* Update responsive styles */
+@media (max-width: 1200px) {
+    #sidebar, #view-options {
+        width: 260px;
+    }
+}
+
+@media (max-width: 992px) {
+    #sidebar, #view-options {
+        width: 240px;
+    }
+}
+
+@media (max-width: 768px) {
+    #view-options {
+        position: fixed;
+        width: 90%;
+        max-width: 280px;
+        left: 50%;
+        transform: translateX(-50%);
+        top: 410px;
+    }
+}
+
+@media (max-height: 700px) {
+    #sidebar {
+        height: 280px;
+    }
+    
+    #view-options {
+        top: 380px;
+    }
+}
+
+/* Interface hiding styles */
+body.interface-hidden #sidebar,
+body.interface-hidden #view-options,
+body.interface-hidden #search-container,
+body.interface-hidden #theme-toggle,
+body.interface-hidden #title-container,
+body.interface-hidden #info-panel,
+body.interface-hidden .footer {
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+body.interface-hidden #canvas-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    z-index: 1;
+}
+
+body.interface-hidden #controls {
+    bottom: 20px;
+    opacity: 0.8;
+    transition: all 0.3s ease;
+}
+
+body.interface-hidden #controls:hover {
+    opacity: 1;
+}
+
+/* Annotation Dialog Styles */
+.annotation-dialog {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.annotation-dialog.active {
+    display: flex;
+}
+
+.annotation-dialog-content {
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-color);
+}
+
+.annotation-dialog-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.annotation-dialog-header h3 {
+    margin: 0;
+    color: var(--text-color);
+    font-size: 1.1rem;
+}
+
+.close-dialog-btn {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+
+.annotation-dialog-body {
+    padding: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--text-color);
+    font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-size: 0.9rem;
+}
+
+.form-group textarea {
+    height: 100px;
+    resize: vertical;
+}
+
+.annotation-dialog-footer {
+    padding: 15px 20px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.primary-btn,
+.secondary-btn {
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.primary-btn {
+    background-color: var(--primary-color);
+    color: var(--bg-color);
+    border: none;
+}
+
+.secondary-btn {
+    background-color: transparent;
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+}
+
+.primary-btn:hover {
+    opacity: 0.9;
+}
+
+.secondary-btn:hover {
+    background-color: var(--card-bg);
+}
+
+/* Annotation Display Styles */
+.annotation-marker {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    cursor: pointer;
+    transform: translate(-50%, -50%);
+    z-index: 100;
+}
+
+.annotation-marker::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 10px;
+    height: 10px;
+    background-color: var(--bg-color);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.annotation-popup {
+    position: absolute;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 10px;
+    min-width: 200px;
+    max-width: 300px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 101;
+    display: none;
+}
+
+.annotation-popup.active {
+    display: block;
+}
+
+.popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.popup-header h4 {
+    margin: 0;
+    color: var(--text-color);
+    font-size: 1rem;
+}
+
+.popup-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.popup-actions button {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.popup-actions button:hover {
+    background-color: var(--hover-color);
+}
+
+.delete-annotation {
+    color: #ff4444 !important;
+}
+
+.delete-annotation:hover {
+    background-color: rgba(255, 68, 68, 0.1) !important;
+}
+
+.annotation-popup p {
+    margin: 0;
+    color: var(--text-color);
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+/* Selection Box Styles */
+.selection-box {
+    position: absolute;
+    border: 2px solid #00ff00;
+    background-color: rgba(0, 255, 0, 0.1);
+    pointer-events: none;
+    z-index: 1000;
+    display: none;
+}
+
+.isolate-mode #scene-canvas {
+    cursor: crosshair !important;
+}
+
+.isolate-mode #scene-canvas.selecting {
+    cursor: none !important;
+}
+
+/* Isolate mode styles */
+.isolate-mode .view-option:last-child {
+    background-color: var(--primary-color);
+    color: var(--bg-color);
+}
+
+.isolate-mode .view-option:last-child i,
+.isolate-mode .view-option:last-child span {
+    color: var(--bg-color);
+}
+
+/* Hidden part styles */
+.hidden-part {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition: opacity 0.3s ease;
+}
+
+/* Selected part styles */
+.selected-part {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    transition: opacity 0.3s ease;
+}
+
+/* Fade effect for non-selected parts */
+.faded-part {
+    opacity: 0.2 !important;
+    transition: opacity 0.3s ease;
 }
 
 /* Update responsive styles */

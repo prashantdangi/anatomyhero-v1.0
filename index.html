@@ -49,6 +49,7 @@
                 <input type="checkbox" id="skeletal" class="system-checkbox" data-model="skeletal.glb" checked>
                 <label for="skeletal">Skeletal System</label>
             </div>
+            <!-- Commented out other systems for initial deployment
             <div class="system-item">
                 <input type="checkbox" id="joints" class="system-checkbox" data-model="joints.glb">
                 <label for="joints">Joints</label>
@@ -81,6 +82,7 @@
                 <input type="checkbox" id="regions" class="system-checkbox" data-model="regions_of_human_body.glb">
                 <label for="regions">Regions of Human Body</label>
             </div>
+            -->
         </div>
 
         <!-- View Options Box -->
@@ -93,7 +95,7 @@
                 <i class="fas fa-adjust"></i>
                 <span>Fade</span>
             </div>
-            <div class="view-option">
+            <div class="view-option" id="isolate-option">
                 <i class="fas fa-eye-slash"></i>
                 <span>Isolate</span>
             </div>
@@ -154,6 +156,32 @@
             </div>
         </div>
     </footer>
+
+    <!-- Annotation Dialog -->
+    <div id="annotation-dialog" class="annotation-dialog">
+        <div class="annotation-dialog-content">
+            <div class="annotation-dialog-header">
+                <h3>Add Annotation</h3>
+                <button class="close-dialog-btn">&times;</button>
+            </div>
+            <div class="annotation-dialog-body">
+                <div class="form-group">
+                    <label for="annotation-title">Title:</label>
+                    <input type="text" id="annotation-title" placeholder="Enter annotation title">
+                </div>
+                <div class="form-group">
+                    <label for="annotation-description">Description:</label>
+                    <textarea id="annotation-description" placeholder="Enter annotation description"></textarea>
+                </div>
+            </div>
+            <div class="annotation-dialog-footer">
+                <button id="save-annotation" class="primary-btn">Save</button>
+                <button id="cancel-annotation" class="secondary-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <!-- Annotation Display Container -->
+    <div id="annotations-container"></div>
 
     <script src="script.js"></script>
 </body>
