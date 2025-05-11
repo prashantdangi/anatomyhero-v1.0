@@ -20,6 +20,14 @@
   ],
   "routes": [
     {
+      "src": "/public/models/(.*)",
+      "headers": {
+        "Content-Type": "model/gltf-binary",
+        "Cache-Control": "public, max-age=31536000, immutable"
+      },
+      "continue": true
+    },
+    {
       "src": "/public/(.*)",
       "dest": "/public/$1"
     },

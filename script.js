@@ -365,8 +365,15 @@ function loadModel(modelPath, systemName) {
         // Add error handling for missing model
         const errorHandler = (error) => {
             console.error(`Error loading model ${modelPath}:`, error);
-            const errorMessage = `Failed to load ${systemName} model. Please ensure the model file exists at: ${modelUrl}`;
-            document.getElementById('loading-text').textContent = errorMessage;
+            
+            // Check if it's a network error
+            if (error.message.includes('Unexpected token') || error.message.includes('JSON')) {
+                const errorMessage = `Network error loading ${systemName} model. Please check your internet connection and try again.`;
+                document.getElementById('loading-text').textContent = errorMessage;
+            } else {
+                const errorMessage = `Failed to load ${systemName} model. Please ensure the model file exists at: ${modelUrl}`;
+                document.getElementById('loading-text').textContent = errorMessage;
+            }
             
             // Show more detailed error information
             const errorDiv = document.createElement('div');
@@ -384,16 +391,23 @@ function loadModel(modelPath, systemName) {
                 Please ensure:<br>
                 1. The model file exists in the public/models directory<br>
                 2. The file name matches exactly (case-sensitive)<br>
-                3. The file is a valid GLB format
+                3. The file is a valid GLB format<br>
+                4. You have a stable internet connection
             `;
             document.getElementById('loading-container').appendChild(errorDiv);
             
             reject(new Error(errorMessage));
         };
         
+        // Add timeout handling
+        const timeout = setTimeout(() => {
+            errorHandler(new Error('Model loading timed out. The file might be too large.'));
+        }, 30000); // 30 second timeout
+        
         loader.load(
             modelUrl,
             (gltf) => {
+                clearTimeout(timeout);
                 console.log(`Successfully loaded model: ${modelPath}`);
                 // Extract any text content from the model for search
                 extractModelData(gltf, systemName);
