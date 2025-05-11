@@ -32,6 +32,9 @@ let isSelecting = false;
 let selectionStart = new THREE.Vector2();
 let selectionEnd = new THREE.Vector2();
 
+// Add to global variables at the top
+let meshLabels = new Map(); // Store mesh labels
+
 // DOM Elements
 const descriptionPanel = document.getElementById('info-panel');
 const closeDescriptionBtn = document.getElementById('close-description');
@@ -112,60 +115,138 @@ const detailedPartDescriptions = {
 
 // Z-Anatomy and ZygoteBody detailed color scheme
 const zAnatomyColors = {
-    // Skeletal System
     skeletal: {
-        // Bones
-        skull: 0xE6E6E6, // Light gray
-        mandible: 0xE6E6E6, // Light gray
-        vertebrae: 0xE6E6E6, // Light gray
-        ribs: 0xE6E6E6, // Light gray
-        sternum: 0xE6E6E6, // Light gray
-        clavicle: 0xE6E6E6, // Light gray
-        scapula: 0xE6E6E6, // Light gray
-        humerus: 0xE6E6E6, // Light gray
-        radius: 0xE6E6E6, // Light gray
-        ulna: 0xE6E6E6, // Light gray
-        pelvis: 0xE6E6E6, // Light gray
-        femur: 0xE6E6E6, // Light gray
-        tibia: 0xE6E6E6, // Light gray
-        fibula: 0xE6E6E6, // Light gray
-        // Cartilage
-        articular: 0xF5F5F5, // Off-white
-        costal: 0xF5F5F5, // Off-white
-        elastic: 0xF5F5F5, // Off-white
-        fibrocartilage: 0xF5F5F5, // Off-white
-        // Joints
-        synovial: 0xD3D3D3, // Light gray
-        fibrous: 0xD3D3D3, // Light gray
-        cartilaginous: 0xD3D3D3 // Light gray
-    }
-    // Commented out other systems for initial deployment
-    /*
-    // Muscular System
-    muscular: {
-        // Skeletal Muscles
-        head: 0xFF6B6B, // Light red
-        neck: 0xFF6B6B, // Light red
-        back: 0xFF6B6B, // Light red
-        chest: 0xFF6B6B, // Light red
-        abdomen: 0xFF6B6B, // Light red
-        arm: 0xFF6B6B, // Light red
-        forearm: 0xFF6B6B, // Light red
-        hand: 0xFF6B6B, // Light red
-        thigh: 0xFF6B6B, // Light red
-        leg: 0xFF6B6B, // Light red
-        foot: 0xFF6B6B, // Light red
-        // Tendons
-        tendon: 0xFF8C8C, // Lighter red
-        // Fascia
-        fascia: 0xFFA5A5, // Very light red
-        // Smooth Muscle
-        smooth: 0xFFB6C1, // Light pink
-        // Cardiac Muscle
-        cardiac: 0xFF0000 // Red
+        skull: 0xE3DAC9, // Unity bone color
+        mandible: 0xE3DAC9,
+        vertebrae: 0xE3DAC9,
+        ribs: 0xE3DAC9,
+        sternum: 0xE3DAC9,
+        clavicle: 0xE3DAC9,
+        scapula: 0xE3DAC9,
+        humerus: 0xE3DAC9,
+        radius: 0xE3DAC9,
+        ulna: 0xE3DAC9,
+        pelvis: 0xE3DAC9,
+        femur: 0xE3DAC9,
+        tibia: 0xE3DAC9,
+        fibula: 0xE3DAC9,
+        synovial: 0xE3DAC9,
+        fibrous: 0xE3DAC9,
+        cartilaginous: 0xE3DAC9,
+        articular: 0xE3DAC9,
+        costal: 0xE3DAC9,
+        elastic: 0xE3DAC9,
+        fibrocartilage: 0xE3DAC9
     },
-    // ... other systems ...
-    */
+    muscular: {
+        head: 0xE3DAC9, // Yellowish-white for head muscles
+        neck: 0xE3DAC9, // Yellowish-white for neck
+        back: 0xE3DAC9, // Yellowish-white for back muscles
+        chest: 0xE3DAC9, // Yellowish-white for chest muscles
+        abdomen: 0xE3DAC9, // Yellowish-white for abdominal muscles
+        arm: 0xE3DAC9, // Yellowish-white for arm muscles
+        forearm: 0xE3DAC9, // Yellowish-white for forearm
+        hand: 0xE3DAC9, // Yellowish-white for hand muscles
+        thigh: 0xE3DAC9, // Yellowish-white for thigh muscles
+        leg: 0xE3DAC9, // Yellowish-white for leg muscles
+        foot: 0xE3DAC9, // Yellowish-white for foot muscles
+        shoulder: 0xE3DAC9, // Yellowish-white for shoulder muscles
+        tendon: 0xD32F2F, // Red for tendons
+        fascia: 0xD32F2F, // Red for fascia
+        // Additional muscle groups with yellowish-white
+        biceps: 0xE3DAC9, // Yellowish-white
+        triceps: 0xE3DAC9, // Yellowish-white
+        deltoid: 0xE3DAC9, // Yellowish-white
+        pectoralis: 0xE3DAC9, // Yellowish-white
+        latissimus: 0xE3DAC9, // Yellowish-white
+        trapezius: 0xE3DAC9, // Yellowish-white
+        quadriceps: 0xE3DAC9, // Yellowish-white
+        hamstrings: 0xE3DAC9, // Yellowish-white
+        gastrocnemius: 0xE3DAC9, // Yellowish-white
+        soleus: 0xE3DAC9 // Yellowish-white
+    },
+    muscular_insertion: {
+        biceps_insertion: 0xD32F2F, // Red
+        triceps_insertion: 0xD32F2F, // Red
+        quadriceps_insertion: 0xD32F2F, // Red
+        hamstrings_insertion: 0xD32F2F, // Red
+        pectoralis_insertion: 0xD32F2F, // Red
+        deltoid_insertion: 0xD32F2F, // Red
+        latissimus_insertion: 0xD32F2F, // Red
+        trapezius_insertion: 0xD32F2F, // Red
+        gastrocnemius_insertion: 0xD32F2F, // Red
+        soleus_insertion: 0xD32F2F, // Red
+        tendon: 0xD32F2F, // Red for tendons
+        fascia: 0xD32F2F // Red for fascia
+    },
+    cardiovascular: {
+        artery: 0xFF0000, // Bright red
+        vein: 0x0000FF, // Bright blue
+        capillary: 0xFF0000,
+        heart: 0xFF0000,
+        blood: 0xFF0000
+    },
+    nervous: {
+        brain: 0xD32F2F, // Red for brain
+        spinal_cord: 0xD32F2F, // Red for spinal cord
+        nerve: 0xD32F2F, // Red for nerves
+        ganglion: 0xD32F2F, // Red for ganglia
+        eye: 0xFFFFFF, // White for eye
+        eye_iris: 0x000000, // Black for iris
+        eye_pupil: 0x000000, // Black for pupil
+        ear: 0xE6E6E6, // Light gray
+        nose: 0xE6E6E6, // Light gray
+        tongue: 0xE6E6E6, // Light gray
+        skin: 0xE6E6E6 // Light gray
+    },
+    lymphoid: {
+        lymph_node: 0x00FF00, // Bright green
+        lymphatic_vessel: 0x00FF00,
+        spleen: 0x00FF00,
+        thymus: 0x00FF00,
+        tonsil: 0x00FF00
+    },
+    visceral: {
+        digestive: 0xFFA500, // Orange
+        respiratory: 0x0000FF, // Bright blue
+        urinary: 0xFFFF00, // Bright yellow
+        reproductive: 0xFF0000, // Bright red
+        endocrine: 0xFFFF00 // Bright yellow
+    },
+    regions: {
+        // Vibrant brownish skin tones for different body regions
+        head: 0xD2B48C, // Rich tan for head
+        face: 0xD2B48C, // Rich tan for face
+        neck: 0xD2B48C, // Rich tan for neck
+        chest: 0xD2B48C, // Rich tan for chest
+        abdomen: 0xD2B48C, // Rich tan for abdomen
+        back: 0xD2B48C, // Rich tan for back
+        shoulder: 0xD2B48C, // Rich tan for shoulders
+        arm: 0xD2B48C, // Rich tan for arms
+        forearm: 0xD2B48C, // Rich tan for forearms
+        hand: 0xD2B48C, // Rich tan for hands
+        thigh: 0xD2B48C, // Rich tan for thighs
+        leg: 0xD2B48C, // Rich tan for legs
+        foot: 0xD2B48C, // Rich tan for feet
+        // Additional vibrant variations
+        palm: 0xE6C7A9, // Lighter tan for palms
+        sole: 0xE6C7A9, // Lighter tan for soles
+        joint: 0xD2B48C, // Standard tan for joints
+        nail: 0xFFE4C4, // Light beige for nails
+        hair: 0x3B2F2F, // Rich dark brown for hair
+        eye: 0xFFFFFF, // White for eye sclera
+        iris: 0x4B3621, // Rich brown for iris
+        pupil: 0x000000, // Black for pupil
+        lip: 0xCD5C5C, // Vibrant coral for lips
+        ear: 0xD2B48C, // Standard tan for ears
+        nose: 0xD2B48C, // Standard tan for nose
+        eyebrow: 0x3B2F2F, // Rich dark brown for eyebrows
+        eyelash: 0x3B2F2F, // Rich dark brown for eyelashes
+        // Additional skin tone variations for more depth
+        shadow: 0xB8860B, // Darker tan for shadows
+        highlight: 0xE6C7A9, // Lighter tan for highlights
+        muscle_definition: 0xC19A6B // Medium tan for muscle definition
+    }
 };
 
 // Initialize loading bar
@@ -195,32 +276,38 @@ function initScene() {
     scene = new THREE.Scene();
     scene.background = new THREE.Color(isDarkMode ? 0x000000 : 0xffffff);
     
-    // Camera setup with adjusted position and field of view
+    // Camera setup with Z-Anatomy's exact FOV and position
     camera = new THREE.PerspectiveCamera(
-        50, // Reduced field of view for better perspective
+        60, // Z-Anatomy's FOV
         container.clientWidth / container.clientHeight,
         0.1,
         1000
     );
-    camera.position.set(0, 0, 7); // Increased Z position to show smaller model
+    camera.position.set(0, 1.5, 5); // Z-Anatomy's camera position
+    camera.lookAt(0, 1, 0);
     
-    // Renderer setup
+    // Renderer setup with Z-Anatomy's exact settings
     renderer = new THREE.WebGLRenderer({ 
         canvas, 
         antialias: true,
-        alpha: true
+        alpha: true,
+        powerPreference: "high-performance"
     });
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.outputEncoding = THREE.sRGBEncoding;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.2; // Increased for Z-Anatomy's look
     
-    // Controls setup with adjusted parameters
+    // Controls setup with Z-Anatomy's parameters
     controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.minDistance = 5; // Increased minimum zoom distance
-    controls.maxDistance = 15; // Increased maximum zoom distance
-    controls.maxPolarAngle = Math.PI / 1.5; // Limit vertical rotation
+    controls.minDistance = 3;
+    controls.maxDistance = 10;
+    controls.maxPolarAngle = Math.PI / 1.5;
     
     // Setup lighting
     setupLights();
@@ -236,23 +323,31 @@ function initScene() {
 }
 
 function setupLights() {
-    // Add ambient light
-    const ambientLight = new THREE.AmbientLight(0xffffff, isDarkMode ? 0.3 : 0.5);
+    // Main directional light (matches Z-Anatomy's main light)
+    const mainLight = new THREE.DirectionalLight(0xFFF5E6, 1.0);
+    mainLight.position.set(0, 3, 0);
+    mainLight.rotation.set(0.40821788, -0.23456968, 0.10938163, 0.8754261); // Z-Anatomy's exact rotation
+    mainLight.castShadow = true;
+    mainLight.shadow.bias = 0.05;
+    mainLight.shadow.normalBias = 0.4;
+    mainLight.shadow.mapSize.width = 2048;
+    mainLight.shadow.mapSize.height = 2048;
+    scene.add(mainLight);
+    
+    // Fill light (matches Z-Anatomy's secondary light)
+    const fillLight = new THREE.DirectionalLight(0xFAEBD7, 0.45);
+    fillLight.position.set(-5, 2, -5);
+    fillLight.rotation.set(0.12464331, -0.4040619, -0.22740957, 0.8772018);
+    scene.add(fillLight);
+    
+    // Rim light for edge definition
+    const rimLight = new THREE.DirectionalLight(0xFFFFFF, 0.3);
+    rimLight.position.set(0, 0, -10);
+    scene.add(rimLight);
+    
+    // Ambient light with Z-Anatomy's exact color
+    const ambientLight = new THREE.AmbientLight(0xFAEBD7, 0.4);
     scene.add(ambientLight);
-    
-    // Add directional lights from multiple angles
-    const directionalLight1 = new THREE.DirectionalLight(0xffffff, isDarkMode ? 0.5 : 0.8);
-    directionalLight1.position.set(5, 10, 7);
-    directionalLight1.castShadow = true;
-    scene.add(directionalLight1);
-    
-    const directionalLight2 = new THREE.DirectionalLight(0xffffff, isDarkMode ? 0.3 : 0.5);
-    directionalLight2.position.set(-5, 5, -5);
-    scene.add(directionalLight2);
-    
-    const directionalLight3 = new THREE.DirectionalLight(0xffffff, isDarkMode ? 0.2 : 0.3);
-    directionalLight3.position.set(0, -10, 0);
-    scene.add(directionalLight3);
 }
 
 function setupRaycaster() {
@@ -357,83 +452,54 @@ function loadModel(modelPath, systemName) {
         dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
         loader.setDRACOLoader(dracoLoader);
         
-        // Update the path to use the correct base URL for Vercel deployment
-        const modelUrl = `/public/models/${modelPath}`; // Updated path for Vercel
+        const modelUrl = `/public/models/${modelPath}`;
         
-        console.log(`Attempting to load model from: ${modelUrl}`); // Debug log
+        console.log(`Attempting to load model from: ${modelUrl}`);
         
-        // Add error handling for missing model
         const errorHandler = (error) => {
             console.error(`Error loading model ${modelPath}:`, error);
-            
-            // Check if it's a network error
-            if (error.message.includes('Unexpected token') || error.message.includes('JSON')) {
-                const errorMessage = `Network error loading ${systemName} model. Please check your internet connection and try again.`;
-                document.getElementById('loading-text').textContent = errorMessage;
-            } else {
-                const errorMessage = `Failed to load ${systemName} model. Please ensure the model file exists at: ${modelUrl}`;
-                document.getElementById('loading-text').textContent = errorMessage;
-            }
-            
-            // Show more detailed error information
-            const errorDiv = document.createElement('div');
-            errorDiv.style.color = 'red';
-            errorDiv.style.padding = '10px';
-            errorDiv.style.margin = '10px';
-            errorDiv.style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
-            errorDiv.style.borderRadius = '5px';
-            errorDiv.innerHTML = `
-                <strong>Error loading model:</strong><br>
-                Model: ${modelPath}<br>
-                URL: ${modelUrl}<br>
-                Error: ${error.message || 'Model file not found'}<br>
-                <br>
-                Please ensure:<br>
-                1. The model file exists in the public/models directory<br>
-                2. The file name matches exactly (case-sensitive)<br>
-                3. The file is a valid GLB format<br>
-                4. You have a stable internet connection
-            `;
-            document.getElementById('loading-container').appendChild(errorDiv);
-            
-            reject(new Error(errorMessage));
+            reject(new Error(`Failed to load ${systemName} model: ${error.message}`));
         };
-        
-        // Add timeout handling
-        const timeout = setTimeout(() => {
-            errorHandler(new Error('Model loading timed out. The file might be too large.'));
-        }, 30000); // 30 second timeout
         
         loader.load(
             modelUrl,
             (gltf) => {
-                clearTimeout(timeout);
                 console.log(`Successfully loaded model: ${modelPath}`);
-                // Extract any text content from the model for search
                 extractModelData(gltf, systemName);
                 
-                // Hide model initially
                 gltf.scene.visible = false;
-                
-                // Apply Z-Anatomy colors to the model
                 applyZAnatomyColors(gltf.scene, systemName);
+                
+                // Process mesh labels
+                processMeshLabels(gltf.scene, systemName);
                 
                 // Center and scale the model
                 const box = new THREE.Box3().setFromObject(gltf.scene);
                 const center = box.getCenter(new THREE.Vector3());
                 const size = box.getSize(new THREE.Vector3());
                 const maxDim = Math.max(size.x, size.y, size.z);
-                const scale = 5.0 / maxDim;
                 
+                // Adjust scale based on system type
+                let scale;
+                if (systemName === 'visceral' || systemName === 'lymphoid') {
+                    scale = 4.0 / maxDim;
+                } else {
+                    scale = 5.0 / maxDim;
+                }
+                
+                gltf.scene.position.set(0, 0, 0);
+                gltf.scene.scale.set(scale, scale, scale);
                 gltf.scene.position.sub(center.multiplyScalar(scale));
-                gltf.scene.position.y = -2.5;
-                gltf.scene.scale.multiplyScalar(scale);
                 
-                // Add to scene and store reference
+                if (systemName === 'visceral' || systemName === 'lymphoid') {
+                    gltf.scene.position.y = -4.5;
+                } else {
+                    gltf.scene.position.y = -2.5;
+                }
+                
                 scene.add(gltf.scene);
                 loadedModels[systemName] = gltf.scene;
                 
-                // Update loading progress
                 loadedModelsCount++;
                 const progress = Math.min(100, Math.round((loadedModelsCount / totalModels) * 100));
                 document.getElementById('loading-bar').style.width = progress + '%';
@@ -960,14 +1026,24 @@ function applyZAnatomyColors(object, systemName) {
             // Get the appropriate color based on the system and part name
             const color = getZAnatomyColor(child.name, systemName);
             
-            // Create a new material with the Z-Anatomy color
-            const material = new THREE.MeshPhongMaterial({
+            // Create a new material with Z-Anatomy's exact material properties
+            const material = new THREE.MeshStandardMaterial({
                 color: color,
-                shininess: 30,
-                specular: 0x111111,
+                metalness: 0.0,
+                roughness: 0.4, // Reduced for more realistic look
                 transparent: true,
-                opacity: 0.8,
-                side: THREE.DoubleSide // Render both sides of the mesh
+                opacity: 0.95,
+                side: THREE.DoubleSide,
+                envMapIntensity: 1.0,
+                flatShading: false,
+                transmission: 0.1,
+                thickness: 0.5,
+                clearcoat: 0.3,
+                clearcoatRoughness: 0.25,
+                // Add subsurface scattering for realistic tissue appearance
+                subsurface: true,
+                subsurfaceColor: new THREE.Color(color).multiplyScalar(0.5),
+                subsurfacePower: 1.0
             });
             
             // Apply the material
@@ -1525,4 +1601,54 @@ function toggleIsolateMode() {
         
         isolatedObject = null;
     }
-} 
+}
+
+// Add function to process mesh labels
+function processMeshLabels(object, systemName) {
+    object.traverse((child) => {
+        if (child instanceof THREE.Mesh) {
+            // Generate a meaningful name if none exists
+            if (!child.name || child.name === '') {
+                child.name = `${systemName}_${child.uuid.slice(0, 8)}`;
+            }
+            
+            // Store the mesh label with its system and position
+            meshLabels.set(child.name, {
+                mesh: child,
+                system: systemName,
+                position: child.position.clone(),
+                originalName: child.name
+            });
+            
+            // Add userData for additional information
+            child.userData = {
+                ...child.userData,
+                system: systemName,
+                originalName: child.name,
+                description: getPartDescription(child.name)
+            };
+        }
+    });
+}
+
+// Add function to get all mesh labels for search
+function getAllMeshLabels() {
+    const labels = [];
+    meshLabels.forEach((data, name) => {
+        if (data.mesh.visible) {
+            labels.push({
+                name: name,
+                system: data.system,
+                position: data.position,
+                mesh: data.mesh
+            });
+        }
+    });
+    return labels;
+}
+
+// Expose necessary functions to window object
+window.scene = scene;
+window.highlightObject = highlightObject;
+window.showPartDescription = showPartDescription;
+window.getAllMeshLabels = getAllMeshLabels; 

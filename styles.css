@@ -469,7 +469,7 @@ body {
     border: 1px solid var(--border-color);
     border-radius: 12px;
     margin-top: 0;
-    max-height: 300px;
+    max-height: 400px;
     overflow-y: auto;
     opacity: 0;
     visibility: hidden;
@@ -524,6 +524,13 @@ body {
     flex: 1;
 }
 
+.suggestion-item .suggestion-text mark {
+    background-color: rgba(var(--primary-color-rgb), 0.2);
+    color: var(--primary-color);
+    padding: 0 2px;
+    border-radius: 2px;
+}
+
 .suggestion-item .suggestion-category {
     color: var(--secondary-color);
     font-size: 12px;
@@ -536,6 +543,20 @@ body {
 .suggestion-item:hover .suggestion-category {
     background-color: var(--primary-color);
     color: var(--bg-color);
+}
+
+.search-loading {
+    padding: 20px;
+    text-align: center;
+    color: var(--secondary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.search-loading i {
+    animation: spin 1s linear infinite;
 }
 
 .no-results {

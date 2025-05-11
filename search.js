@@ -4,15 +4,37 @@ document.addEventListener('DOMContentLoaded', function() {
     let searchTimeout;
     let currentFocus = -1;
 
-    // Sample anatomy data - replace with your actual data
-    const anatomyData = [
-        { name: 'Heart', category: 'Cardiovascular System', icon: 'fa-heart' },
-        { name: 'Brain', category: 'Nervous System', icon: 'fa-brain' },
-        { name: 'Lungs', category: 'Respiratory System', icon: 'fa-lungs' },
-        { name: 'Liver', category: 'Digestive System', icon: 'fa-liver' },
-        { name: 'Kidney', category: 'Urinary System', icon: 'fa-kidney' },
-        // Add more anatomy parts here
-    ];
+    // Function to get all mesh names from the scene
+    function getAllMeshNames() {
+        const meshNames = [];
+        if (window.getAllMeshLabels) {
+            const labels = window.getAllMeshLabels();
+            labels.forEach(label => {
+                meshNames.push({
+                    name: label.name,
+                    category: label.system,
+                    icon: getMeshIcon(label.name),
+                    mesh: label.mesh
+                });
+            });
+        }
+        return meshNames;
+    }
+
+    // Function to get appropriate icon based on mesh name
+    function getMeshIcon(name) {
+        const lowerName = name.toLowerCase();
+        if (lowerName.includes('heart')) return 'fa-heart';
+        if (lowerName.includes('brain')) return 'fa-brain';
+        if (lowerName.includes('lung')) return 'fa-lungs';
+        if (lowerName.includes('liver')) return 'fa-liver';
+        if (lowerName.includes('kidney')) return 'fa-kidney';
+        if (lowerName.includes('bone')) return 'fa-bone';
+        if (lowerName.includes('muscle')) return 'fa-dumbbell';
+        if (lowerName.includes('nerve')) return 'fa-brain';
+        if (lowerName.includes('artery') || lowerName.includes('vein')) return 'fa-heartbeat';
+        return 'fa-circle';
+    }
 
     function showLoading() {
         searchResults.innerHTML = `
@@ -70,7 +92,16 @@ document.addEventListener('DOMContentLoaded', function() {
         searchInput.value = result.name;
         searchResults.classList.remove('active');
         currentFocus = -1;
-        // Add your selection handling logic here
+        
+        // Highlight the selected mesh
+        if (result.mesh && window.highlightObject) {
+            window.highlightObject(result.mesh);
+        }
+        
+        // Show description if available
+        if (result.mesh && window.showPartDescription) {
+            window.showPartDescription(result.mesh);
+        }
     }
 
     searchInput.addEventListener('input', function(e) {
@@ -87,7 +118,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Add a small delay to prevent too many updates while typing
         searchTimeout = setTimeout(() => {
-            const filteredResults = anatomyData.filter(item => 
+            const meshNames = getAllMeshNames();
+            const filteredResults = meshNames.filter(item => 
                 item.name.toLowerCase().includes(query) || 
                 item.category.toLowerCase().includes(query)
             );
