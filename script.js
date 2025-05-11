@@ -139,31 +139,31 @@ const zAnatomyColors = {
         fibrocartilage: 0xE3DAC9
     },
     muscular: {
-        head: 0xE3DAC9, // Yellowish-white for head muscles
-        neck: 0xE3DAC9, // Yellowish-white for neck
-        back: 0xE3DAC9, // Yellowish-white for back muscles
-        chest: 0xE3DAC9, // Yellowish-white for chest muscles
-        abdomen: 0xE3DAC9, // Yellowish-white for abdominal muscles
-        arm: 0xE3DAC9, // Yellowish-white for arm muscles
-        forearm: 0xE3DAC9, // Yellowish-white for forearm
-        hand: 0xE3DAC9, // Yellowish-white for hand muscles
-        thigh: 0xE3DAC9, // Yellowish-white for thigh muscles
-        leg: 0xE3DAC9, // Yellowish-white for leg muscles
-        foot: 0xE3DAC9, // Yellowish-white for foot muscles
-        shoulder: 0xE3DAC9, // Yellowish-white for shoulder muscles
+        head: 0xFF6B6B, // Vibrant coral for head muscles
+        neck: 0xFF9E7D, // Vibrant peach for neck
+        back: 0xFF4D4D, // Bright red for back muscles
+        chest: 0xFF7F50, // Coral for chest muscles
+        abdomen: 0xFF6347, // Tomato red for abdominal muscles
+        arm: 0xFF4500, // Orange-red for arm muscles
+        forearm: 0xFF8C00, // Dark orange for forearm
+        hand: 0xFFA07A, // Light salmon for hand muscles
+        thigh: 0xFF6B6B, // Vibrant coral for thigh muscles
+        leg: 0xFF7F50, // Coral for leg muscles
+        foot: 0xFFA07A, // Light salmon for foot muscles
+        shoulder: 0xFF4500, // Orange-red for shoulder muscles
         tendon: 0xD32F2F, // Red for tendons
         fascia: 0xD32F2F, // Red for fascia
-        // Additional muscle groups with yellowish-white
-        biceps: 0xE3DAC9, // Yellowish-white
-        triceps: 0xE3DAC9, // Yellowish-white
-        deltoid: 0xE3DAC9, // Yellowish-white
-        pectoralis: 0xE3DAC9, // Yellowish-white
-        latissimus: 0xE3DAC9, // Yellowish-white
-        trapezius: 0xE3DAC9, // Yellowish-white
-        quadriceps: 0xE3DAC9, // Yellowish-white
-        hamstrings: 0xE3DAC9, // Yellowish-white
-        gastrocnemius: 0xE3DAC9, // Yellowish-white
-        soleus: 0xE3DAC9 // Yellowish-white
+        // Additional muscle groups with vibrant colors
+        biceps: 0xFF4500, // Orange-red
+        triceps: 0xFF6347, // Tomato red
+        deltoid: 0xFF7F50, // Coral
+        pectoralis: 0xFF6B6B, // Vibrant coral
+        latissimus: 0xFF4D4D, // Bright red
+        trapezius: 0xFF6347, // Tomato red
+        quadriceps: 0xFF4500, // Orange-red
+        hamstrings: 0xFF6347, // Tomato red
+        gastrocnemius: 0xFF7F50, // Coral
+        soleus: 0xFF8C00 // Dark orange
     },
     muscular_insertion: {
         biceps_insertion: 0xD32F2F, // Red
@@ -207,11 +207,11 @@ const zAnatomyColors = {
         tonsil: 0x00FF00
     },
     visceral: {
-        digestive: 0xFFA500, // Orange
-        respiratory: 0x0000FF, // Bright blue
-        urinary: 0xFFFF00, // Bright yellow
-        reproductive: 0xFF0000, // Bright red
-        endocrine: 0xFFFF00 // Bright yellow
+        digestive: 0x8B4513, // Brownish-red for digestive organs
+        respiratory: 0xFFB6C1, // Pinkish-gray for respiratory organs
+        urinary: 0x8B4513, // Brownish-red for urinary organs
+        reproductive: 0xFF69B4, // Pinkish-red for reproductive organs
+        endocrine: 0xFFDAB9 // Peach color for endocrine organs
     },
     regions: {
         // Vibrant brownish skin tones for different body regions
