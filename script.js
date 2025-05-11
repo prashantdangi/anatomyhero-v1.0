@@ -357,8 +357,8 @@ function loadModel(modelPath, systemName) {
         dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
         loader.setDRACOLoader(dracoLoader);
         
-        // Update the path to use the correct base URL
-        const modelUrl = `./public/models/${modelPath}`; // Updated path
+        // Update the path to use the correct base URL for Vercel deployment
+        const modelUrl = `/public/models/${modelPath}`; // Updated path for Vercel
         
         console.log(`Attempting to load model from: ${modelUrl}`); // Debug log
         
